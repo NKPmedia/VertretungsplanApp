@@ -8,6 +8,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 
 
 public class Setup extends ActionBarActivity implements View.OnClickListener {
@@ -52,8 +53,10 @@ public class Setup extends ActionBarActivity implements View.OnClickListener {
             SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
             settings.edit().putBoolean("startSetup",true).commit();
 
+            EditText mEdit   = (EditText)findViewById(R.id.setupKlasse);
+            settings.edit().putString("klasse",mEdit.getText().toString()).commit();
 
-            this.onDestroy();
+            this.finish();
         }
     }
 }
