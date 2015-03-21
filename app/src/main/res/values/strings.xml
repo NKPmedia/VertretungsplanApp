@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">VertretungsplanAppAndroid</string>
 
+
     <string name="title_section1">Heute</string>
     <string name="title_section2">Morgen</string>
     <string name="title_section3">Übermorgen</string>
