@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
@@ -17,7 +18,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
-import android.os.Handler;
+
+import java.util.ArrayList;
 
 public class MainActivity extends ActionBarActivity implements NavigationDrawerFragment.NavigationDrawerCallbacks {
 
@@ -39,7 +41,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 
         mNavigationDrawerFragment = (NavigationDrawerFragment) getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
         mTitle = getTitle();
-
+        mNavigationDrawerFragment.setHandler(this.uiHandler);
         // Set up the drawer.
         mNavigationDrawerFragment.setUp(
                 R.id.navigation_drawer,
@@ -166,6 +168,8 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
         public void handleMessage(Message msg) {
             // a message is received; update UI text view
 //            textView.setText(msg.obj.toString());
+            System.out.println("Message");
+            ArrayList<Ausfall> list = (ArrayList<Ausfall>) msg.obj;
             super.handleMessage(msg);
         }
 

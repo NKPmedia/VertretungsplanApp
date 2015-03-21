@@ -1,14 +1,24 @@
 package de.nkp_media.vertretungsplanappandroid;
 
+import android.os.Handler;
+import android.os.Message;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 
 /**
  * Created by paul on 20.03.15.
  */
 public class FeedUpdate extends Thread{
+
+    private final Handler uiHandler;
+
+    public FeedUpdate(Handler uihandler) {
+        this.uiHandler = uihandler;
+    }
 
     @Override
     public void run()
@@ -29,7 +39,12 @@ public class FeedUpdate extends Thread{
 //            System.out.println(total.toString());
 
             System.out.println("Parsing");
-            Object entries = XmlParser.parse(stream);
+            ArrayList<Ausfall> ausfaelle = XmlParser.parse(stream);
+
+            Message msg = Message.obtain(uiHandler);
+            msg.obj =ausfaelle;
+            this.uiHandler.sendMessage(msg);
+
         } catch (IOException e) {
             e.printStackTrace();
         }

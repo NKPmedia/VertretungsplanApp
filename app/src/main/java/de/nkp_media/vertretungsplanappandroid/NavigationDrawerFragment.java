@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.Fragment;
@@ -57,6 +58,7 @@ public class NavigationDrawerFragment extends Fragment {
     private int mCurrentSelectedPosition = 0;
     private boolean mFromSavedInstanceState;
     private boolean mUserLearnedDrawer;
+    private Handler uihandler = null;
 
     public NavigationDrawerFragment() {
     }
@@ -257,7 +259,7 @@ public class NavigationDrawerFragment extends Fragment {
     }
 
     private void updateFeed() {
-        FeedUpdate update = new FeedUpdate();
+        FeedUpdate update = new FeedUpdate(this.uihandler);
         update.start();
     }
 
@@ -274,6 +276,10 @@ public class NavigationDrawerFragment extends Fragment {
 
     private ActionBar getActionBar() {
         return ((ActionBarActivity) getActivity()).getSupportActionBar();
+    }
+
+    public void setHandler(Handler uiHandler) {
+        this.uihandler = uiHandler;
     }
 
     /**

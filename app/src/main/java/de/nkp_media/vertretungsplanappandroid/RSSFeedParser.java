@@ -16,7 +16,7 @@ import java.util.ArrayList;
 public class RSSFeedParser {
 
 
-    public Object parse(InputStream stream) {
+    public  ArrayList<Ausfall> parse(InputStream stream) {
 
         XmlPullParserFactory pullParserFactory;
         try {
@@ -27,7 +27,8 @@ public class RSSFeedParser {
             parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
             parser.setInput(in_s, null);
 
-            parseXML(parser);
+            ArrayList<Ausfall> ausfaelle =  parseXML(parser);
+            return ausfaelle;
         } catch (XmlPullParserException e) {
 
             e.printStackTrace();
@@ -39,7 +40,7 @@ public class RSSFeedParser {
         return null;
     }
 
-    private void parseXML(XmlPullParser parser) throws XmlPullParserException,IOException
+    private ArrayList<Ausfall> parseXML(XmlPullParser parser) throws XmlPullParserException,IOException
     {
         ArrayList<Ausfall> ausfaelle = null;
         int eventType = parser.getEventType();
@@ -74,6 +75,7 @@ public class RSSFeedParser {
             eventType = parser.next();
         }
         this.showFeed(ausfaelle);
+        return ausfaelle;
     }
 
     private void showFeed(ArrayList<Ausfall> ausfaelle)
