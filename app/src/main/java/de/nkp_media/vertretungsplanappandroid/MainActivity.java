@@ -17,6 +17,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.ListAdapter;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -170,6 +173,16 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 //            textView.setText(msg.obj.toString());
             System.out.println("Message");
             ArrayList<Ausfall> list = (ArrayList<Ausfall>) msg.obj;
+            ListView listView = (ListView) findViewById(R.id.listView);
+            ArrayList<String> valueList = new ArrayList<String>();
+            for(Ausfall ausfall : list)
+            {
+                if(ausfall.titel != null) {
+                    valueList.add(ausfall.titel);
+                }
+            }
+            ListAdapter adapter = new ArrayAdapter<>(getApplicationContext(), R.layout.list_item, valueList);
+            listView.setAdapter(adapter);
             super.handleMessage(msg);
         }
 
