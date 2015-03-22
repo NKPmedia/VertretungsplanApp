@@ -13,4 +13,6 @@
 
     <string name="action_settings">Einstellungen</string>
     <string name="title_activity_setup">Setup</string>
+
+    <color name="UserSchwarz">#000000</color>
 </resources>

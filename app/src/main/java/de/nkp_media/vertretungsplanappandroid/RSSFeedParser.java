@@ -54,14 +54,15 @@ public class RSSFeedParser {
                     break;
                 case XmlPullParser.START_TAG:
                     name = parser.getName();
-                    if (name == "item"){
+                    if (name.equals("item")){
                         currentProduct = new Ausfall();
                     } else if (currentProduct != null){
-                        if (name == "titel"){
+                        if (name.equals("title")){
                             currentProduct.titel = parser.nextText();
-                        } else if (name == "description"){
+                            System.out.println(currentProduct.titel);
+                        } else if (name.equals("description")){
                             currentProduct.description = parser.nextText();
-                        } else if (name == "pubDate"){
+                        } else if (name.equals("pubDate")){
                             currentProduct.pubDate= parser.nextText();
                         }
                     }
