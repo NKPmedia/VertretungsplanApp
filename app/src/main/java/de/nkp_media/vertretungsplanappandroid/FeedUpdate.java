@@ -26,7 +26,7 @@ public class FeedUpdate extends Thread{
     public void run()
     {
 //        RSSFeedParser XmlParser = new RSSFeedParser();
-        AusfallParser XmlParser = new AusfallParser();
+        RSSFeedParser XmlParser = new RSSFeedParser();
         InputStream stream = null;
         try {
             System.out.println("Started FeedUpdater");

@@ -16,7 +16,7 @@ import java.util.ArrayList;
 public class RSSFeedParser {
 
 
-    public  ArrayList<Ausfall> parse(InputStream stream) {
+    public  ArrayList<Ausfall2> parse(InputStream stream) {
 
         XmlPullParserFactory pullParserFactory;
         try {
@@ -27,7 +27,7 @@ public class RSSFeedParser {
             parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
             parser.setInput(in_s, null);
 
-            ArrayList<Ausfall> ausfaelle =  parseXML(parser);
+            ArrayList<Ausfall2> ausfaelle =  parseXML(parser);
             return ausfaelle;
         } catch (XmlPullParserException e) {
 
@@ -40,11 +40,11 @@ public class RSSFeedParser {
         return null;
     }
 
-    private ArrayList<Ausfall> parseXML(XmlPullParser parser) throws XmlPullParserException,IOException
+    private ArrayList<Ausfall2> parseXML(XmlPullParser parser) throws XmlPullParserException,IOException
     {
-        ArrayList<Ausfall> ausfaelle = null;
+        ArrayList<Ausfall2> ausfaelle = null;
         int eventType = parser.getEventType();
-        Ausfall currentProduct = null;
+        Ausfall2 currentProduct = null;
 
         while (eventType != XmlPullParser.END_DOCUMENT){
             String name = null;
@@ -54,22 +54,21 @@ public class RSSFeedParser {
                     break;
                 case XmlPullParser.START_TAG:
                     name = parser.getName();
-                    if (name.equals("item")){
-                        currentProduct = new Ausfall();
+                    if (name.equals("ausfall")){
+                        currentProduct = new Ausfall2();
                     } else if (currentProduct != null){
-                        if (name.equals("title")){
-                            currentProduct.titel = parser.nextText();
-                            System.out.println(currentProduct.titel);
-                        } else if (name.equals("description")){
-                            currentProduct.description = parser.nextText();
-                        } else if (name.equals("pubDate")){
-                            currentProduct.pubDate= parser.nextText();
+                        if (name.equals("lehrer")){
+                            currentProduct.setLehrer(parser.nextText());
+                        } else if (name.equals("fach")){
+                            currentProduct.setFach(parser.nextText());
+                        } else if (name.equals("stunde")){
+                            currentProduct.setStunde(Integer.getInteger(parser.nextText()));
                         }
                     }
                     break;
                 case XmlPullParser.END_TAG:
                     name = parser.getName();
-                    if (name.equalsIgnoreCase("item") && currentProduct != null){
+                    if (name.equalsIgnoreCase("ausfall") && currentProduct != null){
                         ausfaelle.add(currentProduct);
                     }
             }
@@ -79,7 +78,7 @@ public class RSSFeedParser {
         return ausfaelle;
     }
 
-    private void showFeed(ArrayList<Ausfall> ausfaelle)
+    private void showFeed(ArrayList<Ausfall2> ausfaelle)
     {
 
     }
