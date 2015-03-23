@@ -30,7 +30,7 @@ public class FeedUpdate extends Thread{
         InputStream stream = null;
         try {
             System.out.println("Started FeedUpdater");
-            stream = downloadUrl("http://winet.no-ip.info/blackboard/rss/get_rss.php?klasse="+this.klasse);
+            stream = downloadUrl("http://winet.no-ip.info/blackboard/rss/get_android_rss.php?klasse="+this.klasse);
 
 //            BufferedReader buff = new BufferedReader(new InputStreamReader(stream));
 //            String line;
