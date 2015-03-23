@@ -18,7 +18,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -36,6 +35,9 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
      */
     private CharSequence mTitle;
     private Handler uiHandler = new UIHandler();
+    private String currectDate;
+    private ArrayList<Ausfall2> ausfallList = new ArrayList<Ausfall2>();
+    private ArrayAdapter<String> ListViewAdapter = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,13 +47,34 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
         mNavigationDrawerFragment = (NavigationDrawerFragment) getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
         mTitle = getTitle();
         mNavigationDrawerFragment.setHandler(this.uiHandler);
+        mNavigationDrawerFragment.setMainActivity(this);
         // Set up the drawer.
         mNavigationDrawerFragment.setUp(
                 R.id.navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout));
         this.checkStartSetup();
 
+
     }
+
+    @Override
+    protected void onStart()
+    {
+        super.onStart();
+    }
+    private void updateListView() {
+        ListView listView = (ListView) findViewById(R.id.listView);
+        ArrayList<String> valueList = new ArrayList<String>();
+        for(Ausfall2 ausfall : this.ausfallList)
+        {
+            if(ausfall.isEntfall()) {
+                valueList.add(String.valueOf(ausfall.getStunde())+" "+ausfall.getFach()+" ("+ausfall.getLehrer()+")");
+            }
+        }
+        ListViewAdapter = new ArrayAdapter<>(getApplicationContext(), R.layout.list_item, valueList);
+        listView.setAdapter(ListViewAdapter);
+    }
+
 
     private void checkStartSetup() {
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
@@ -78,12 +101,15 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
             case 1:
                 mTitle = getString(R.string.title_section1);
                 Toast.makeText(this, "Heute", Toast.LENGTH_SHORT).show();
+                this.currectDate = "heute";
                 break;
             case 2:
                 mTitle = getString(R.string.title_section2);
+                this.currectDate = "morgen";
                 break;
             case 3:
                 mTitle = getString(R.string.title_section3);
+                this.currectDate = "uebermorgen";
                 break;
         }
     }
@@ -172,17 +198,8 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
             // a message is received; update UI text view
 //            textView.setText(msg.obj.toString());
             System.out.println("Message");
-            ArrayList<Ausfall> list = (ArrayList<Ausfall>) msg.obj;
-            ListView listView = (ListView) findViewById(R.id.listView);
-            ArrayList<String> valueList = new ArrayList<String>();
-            for(Ausfall ausfall : list)
-            {
-                if(ausfall.titel != null) {
-                    valueList.add(ausfall.titel);
-                }
-            }
-            ListAdapter adapter = new ArrayAdapter<>(getApplicationContext(), R.layout.list_item, valueList);
-            listView.setAdapter(adapter);
+            ausfallList = (ArrayList<Ausfall2>) msg.obj;
+            updateListView();
             super.handleMessage(msg);
         }
 

@@ -59,6 +59,7 @@ public class NavigationDrawerFragment extends Fragment {
     private boolean mFromSavedInstanceState;
     private boolean mUserLearnedDrawer;
     private Handler uihandler = null;
+    private MainActivity mainActivity;
 
     public NavigationDrawerFragment() {
     }
@@ -259,7 +260,9 @@ public class NavigationDrawerFragment extends Fragment {
     }
 
     private void updateFeed() {
-        FeedUpdate update = new FeedUpdate(this.uihandler);
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this.mainActivity);
+        String klasse = settings.getString("klasse", "S4");
+        FeedUpdate update = new FeedUpdate(this.uihandler,klasse);
         update.start();
     }
 
@@ -280,6 +283,10 @@ public class NavigationDrawerFragment extends Fragment {
 
     public void setHandler(Handler uiHandler) {
         this.uihandler = uiHandler;
+    }
+
+    public void setMainActivity(MainActivity mainActivity) {
+        this.mainActivity = mainActivity;
     }
 
     /**

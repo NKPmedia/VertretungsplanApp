@@ -15,19 +15,22 @@ import java.util.ArrayList;
 public class FeedUpdate extends Thread{
 
     private final Handler uiHandler;
+    private final String klasse;
 
-    public FeedUpdate(Handler uihandler) {
+    public FeedUpdate(Handler uihandler, String klasse) {
         this.uiHandler = uihandler;
+        this.klasse = klasse;
     }
 
     @Override
     public void run()
     {
-        RSSFeedParser XmlParser = new RSSFeedParser();
+//        RSSFeedParser XmlParser = new RSSFeedParser();
+        AusfallParser XmlParser = new AusfallParser();
         InputStream stream = null;
         try {
             System.out.println("Started FeedUpdater");
-            stream = downloadUrl("http://winet.no-ip.info/blackboard/rss/get_rss.php?klasse=S4");
+            stream = downloadUrl("http://winet.no-ip.info/blackboard/rss/get_rss.php?klasse="+this.klasse);
 
 //            BufferedReader buff = new BufferedReader(new InputStreamReader(stream));
 //            String line;
@@ -39,7 +42,8 @@ public class FeedUpdate extends Thread{
 //            System.out.println(total.toString());
 
             System.out.println("Parsing");
-            ArrayList<Ausfall> ausfaelle = XmlParser.parse(stream);
+//            ArrayList<Ausfall> ausfaelle = XmlParser.parse(stream);
+            ArrayList<Ausfall2> ausfaelle = XmlParser.parse(stream);
 
             Message msg = Message.obtain(uiHandler);
             msg.obj =ausfaelle;
