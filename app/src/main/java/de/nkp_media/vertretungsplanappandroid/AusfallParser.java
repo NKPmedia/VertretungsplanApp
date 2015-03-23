@@ -1,21 +1,19 @@
-package de.nkp_media.vertretungsplanappandroid;
+/*package de.nkp_media.vertretungsplanappandroid;
 
 import org.dom4j.Document;
 import org.dom4j.Node;
 import org.dom4j.io.SAXReader;
 
 import java.io.InputStream;
-import java.lang.reflect.Array;
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 /**
  * Created by Niklas on 21.03.2015.
  */
+/*
 public class AusfallParser {
 
     public ArrayList<Ausfall2> parse(InputStream stream) {
@@ -78,4 +76,4 @@ public class AusfallParser {
         return ausfaelle;
     }
 
-}
+}*/
