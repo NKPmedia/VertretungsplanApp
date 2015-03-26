@@ -8,6 +8,7 @@ public class Ausfall2 {
     private String lehrer;
     private String vertretung;
     private Date zieldatum;
+    private String zieldatumString;
     private String fach;
     private String zielfach;
     private String raum;
@@ -43,6 +44,14 @@ public class Ausfall2 {
 
     public void setZieldatum(Date zieldatum) {
         this.zieldatum = zieldatum;
+    }
+
+    public String getZieldatumString() {
+        return zieldatumString;
+    }
+
+    public void setZieldatumString(String zieldatum) {
+        this.zieldatumString = zieldatum;
     }
 
     public String getFach() {
