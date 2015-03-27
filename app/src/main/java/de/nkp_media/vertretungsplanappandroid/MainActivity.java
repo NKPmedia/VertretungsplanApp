@@ -66,6 +66,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
     {
         super.onStart();
     }
+
     private void updateListView() {
         ListView listView = (ListView) findViewById(R.id.listView);
         ArrayList<String> valueList = new ArrayList<String>();
@@ -141,14 +142,17 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
                 mTitle = getString(R.string.title_section1);
                 Toast.makeText(this, "Heute", Toast.LENGTH_SHORT).show();
                 this.currectDate = "heute";
+                if(mNavigationDrawerFragment != null)  mNavigationDrawerFragment.updateFeed();
                 break;
             case 2:
                 mTitle = getString(R.string.title_section2);
                 this.currectDate = "morgen";
+                if(mNavigationDrawerFragment != null)  mNavigationDrawerFragment.updateFeed();
                 break;
             case 3:
                 mTitle = getString(R.string.title_section3);
                 this.currectDate = "uebermorgen";
+                if(mNavigationDrawerFragment != null)  mNavigationDrawerFragment.updateFeed();
                 break;
         }
     }
