@@ -6,6 +6,8 @@ import org.xmlpull.v1.XmlPullParserFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
 /**
@@ -34,14 +36,15 @@ public class RSSFeedParser {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (ParseException e) {
+            e.printStackTrace();
         }
 
 
         return null;
     }
 
-    private ArrayList<Ausfall2> parseXML(XmlPullParser parser) throws XmlPullParserException,IOException
-    {
+    private ArrayList<Ausfall2> parseXML(XmlPullParser parser) throws XmlPullParserException, IOException, ParseException {
         ArrayList<Ausfall2> ausfaelle = null;
         int eventType = parser.getEventType();
         Ausfall2 currentProduct = null;
@@ -54,27 +57,51 @@ public class RSSFeedParser {
                     break;
                 case XmlPullParser.START_TAG:
                     name = parser.getName();
-                    if (name.equals("ausfall")){
+                    if (name.equals("item")){
                         currentProduct = new Ausfall2();
+                        String relType = parser.getAttributeValue(null, "faelltAus");
+                        if(relType.equals("yes")) {
+                            currentProduct.setEntfall(true);
+                        }
+                        else
+                        {
+                            currentProduct.setEntfall(false);
+                        }
                     } else if (currentProduct != null){
                         if (name.equals("lehrer")){
                             currentProduct.setLehrer(parser.nextText());
                         } else if (name.equals("fach")){
                             currentProduct.setFach(parser.nextText());
                         } else if (name.equals("stunde")){
-                            currentProduct.setStunde(Integer.getInteger(parser.nextText()));
+                            currentProduct.setStunde(Integer.parseInt(parser.nextText()));
+                        }else if (name.equals("datum")){
+                            String datum = parser.nextText();
+                            currentProduct.setZieldatum(new SimpleDateFormat("yyyy-MM-dd").parse(datum));
+                            currentProduct.setZieldatumString(datum);
+                        } else if (name.equals("vertretung")){
+                            currentProduct.setVertretung(parser.nextText());
+                        } else if (name.equals("zielfach")){
+                            currentProduct.setZielfach(parser.nextText());
+                        } else if (name.equals("raum")){
+                            currentProduct.setRaum(parser.nextText());
                         }
+
                     }
                     break;
                 case XmlPullParser.END_TAG:
                     name = parser.getName();
-                    if (name.equalsIgnoreCase("ausfall") && currentProduct != null){
+                    if (name.equalsIgnoreCase("item") && currentProduct != null){
                         ausfaelle.add(currentProduct);
                     }
             }
             eventType = parser.next();
         }
         this.showFeed(ausfaelle);
+        if(ausfaelle == null)
+        {
+            System.out.println("Ausfälle null List");
+            ausfaelle = new ArrayList();
+        }
         return ausfaelle;
     }
 

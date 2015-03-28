@@ -21,7 +21,10 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 
 public class MainActivity extends ActionBarActivity implements NavigationDrawerFragment.NavigationDrawerCallbacks {
 
@@ -35,7 +38,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
      */
     private CharSequence mTitle;
     private Handler uiHandler = new UIHandler();
-    private String currectDate;
+    private String currectDate ="heute";
     private ArrayList<Ausfall2> ausfallList = new ArrayList<Ausfall2>();
     private ArrayAdapter<String> ListViewAdapter = null;
 
@@ -52,6 +55,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
         mNavigationDrawerFragment.setUp(
                 R.id.navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout));
+        mNavigationDrawerFragment.updateFeed();
         this.checkStartSetup();
 
 
@@ -62,17 +66,53 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
     {
         super.onStart();
     }
+
     private void updateListView() {
         ListView listView = (ListView) findViewById(R.id.listView);
         ArrayList<String> valueList = new ArrayList<String>();
+
+        String anzeigeDatum = "";
+        if(this.currectDate.equals("heute"))
+        {
+            anzeigeDatum = this.getTodayPlusDay(0);
+        }
+        else if(this.currectDate.equals("morgen"))
+        {
+            anzeigeDatum = this.getTodayPlusDay(1);
+        }
+        else if(this.currectDate.equals("uebermorgen"))
+        {
+            anzeigeDatum = this.getTodayPlusDay(2);
+        }
+
+
         for(Ausfall2 ausfall : this.ausfallList)
         {
-            if(ausfall.isEntfall()) {
-                valueList.add(String.valueOf(ausfall.getStunde())+" "+ausfall.getFach()+" ("+ausfall.getLehrer()+")");
+            System.out.println("Item");
+            if(ausfall.getZieldatumString().equals(anzeigeDatum)) {
+                if (ausfall.isEntfall())
+                {
+                    valueList.add(String.valueOf(ausfall.getStunde()) + "A " + ausfall.getFach() + " (" + ausfall.getLehrer().replaceAll("chrom","") + ")");
+                }
+                else
+                {
+                    valueList.add(String.valueOf(ausfall.getStunde()) + "V " + ausfall.getFach() + " (" + ausfall.getLehrer().replaceAll("chrom","") + ") \n-> "+ausfall.getZielfach()+" ("+ausfall.getVertretung().replaceAll("chrom","")+")");
+                }
             }
         }
         ListViewAdapter = new ArrayAdapter<>(getApplicationContext(), R.layout.list_item, valueList);
         listView.setAdapter(ListViewAdapter);
+    }
+
+    public String getTodayPlusDay(int days)
+    {
+        Date heute = new Date();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        Calendar c = Calendar.getInstance();
+        c.setTime(heute);
+        c.add(Calendar.DATE, days);  // number of days to add
+        String df = sdf.format(c.getTime());
+        return df;
     }
 
 
@@ -102,14 +142,17 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
                 mTitle = getString(R.string.title_section1);
                 Toast.makeText(this, "Heute", Toast.LENGTH_SHORT).show();
                 this.currectDate = "heute";
+                if(mNavigationDrawerFragment != null)  mNavigationDrawerFragment.updateFeed();
                 break;
             case 2:
                 mTitle = getString(R.string.title_section2);
                 this.currectDate = "morgen";
+                if(mNavigationDrawerFragment != null)  mNavigationDrawerFragment.updateFeed();
                 break;
             case 3:
                 mTitle = getString(R.string.title_section3);
                 this.currectDate = "uebermorgen";
+                if(mNavigationDrawerFragment != null)  mNavigationDrawerFragment.updateFeed();
                 break;
         }
     }
@@ -199,6 +242,10 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 //            textView.setText(msg.obj.toString());
             System.out.println("Message");
             ausfallList = (ArrayList<Ausfall2>) msg.obj;
+            if(ausfallList == null)
+            {
+                System.out.println("Null List");
+            }
             updateListView();
             super.handleMessage(msg);
         }

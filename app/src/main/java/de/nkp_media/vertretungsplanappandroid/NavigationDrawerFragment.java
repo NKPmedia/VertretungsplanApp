@@ -259,7 +259,7 @@ public class NavigationDrawerFragment extends Fragment {
         return super.onOptionsItemSelected(item);
     }
 
-    private void updateFeed() {
+    public void updateFeed() {
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this.mainActivity);
         String klasse = settings.getString("klasse", "S4");
         FeedUpdate update = new FeedUpdate(this.uihandler,klasse);

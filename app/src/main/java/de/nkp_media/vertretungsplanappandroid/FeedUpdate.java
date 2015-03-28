@@ -42,11 +42,14 @@ public class FeedUpdate extends Thread{
 //            System.out.println(total.toString());
 
             System.out.println("Parsing");
-//            ArrayList<Ausfall> ausfaelle = XmlParser.parse(stream);
             ArrayList<Ausfall2> ausfaelle = XmlParser.parse(stream);
 
             Message msg = Message.obtain(uiHandler);
             msg.obj =ausfaelle;
+            if(msg.obj == null)
+            {
+                System.out.println("Null obj");
+            }
             this.uiHandler.sendMessage(msg);
 
         } catch (IOException e) {
