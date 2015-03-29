@@ -25,12 +25,10 @@ public class RSSFeedParser {
             pullParserFactory = XmlPullParserFactory.newInstance();
             XmlPullParser parser = pullParserFactory.newPullParser();
 
-            InputStream in_s = stream;
             parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
-            parser.setInput(in_s, null);
+            parser.setInput(stream, null);
 
-            ArrayList<Ausfall2> ausfaelle =  parseXML(parser);
-            return ausfaelle;
+            return parseXML(parser);
         } catch (XmlPullParserException e) {
 
             e.printStackTrace();
@@ -53,7 +51,7 @@ public class RSSFeedParser {
             String name = null;
             switch (eventType){
                 case XmlPullParser.START_DOCUMENT:
-                    ausfaelle = new ArrayList();
+                    ausfaelle = new ArrayList<>();
                     break;
                 case XmlPullParser.START_TAG:
                     name = parser.getName();
@@ -100,7 +98,7 @@ public class RSSFeedParser {
         if(ausfaelle == null)
         {
             System.out.println("Ausfälle null List");
-            ausfaelle = new ArrayList();
+            ausfaelle = new ArrayList<>();
         }
         return ausfaelle;
     }

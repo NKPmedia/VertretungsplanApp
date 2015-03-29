@@ -38,9 +38,9 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
      */
     private CharSequence mTitle;
     private Handler uiHandler = new UIHandler();
-    private String currectDate ="heute";
-    private ArrayList<Ausfall2> ausfallList = new ArrayList<Ausfall2>();
-    private ArrayAdapter<String> ListViewAdapter = null;
+    private String currentDate ="heute";
+    private ArrayList<Ausfall2> ausfallList = new ArrayList<>();
+    private ArrayAdapter<String> listViewAdapter = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,8 +57,6 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
                 (DrawerLayout) findViewById(R.id.drawer_layout));
         mNavigationDrawerFragment.updateFeed();
         this.checkStartSetup();
-
-
     }
 
     @Override
@@ -72,15 +70,15 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
         ArrayList<String> valueList = new ArrayList<String>();
 
         String anzeigeDatum = "";
-        if(this.currectDate.equals("heute"))
+        if(this.currentDate.equals("heute"))
         {
             anzeigeDatum = this.getTodayPlusDay(0);
         }
-        else if(this.currectDate.equals("morgen"))
+        else if(this.currentDate.equals("morgen"))
         {
             anzeigeDatum = this.getTodayPlusDay(1);
         }
-        else if(this.currectDate.equals("uebermorgen"))
+        else if(this.currentDate.equals("uebermorgen"))
         {
             anzeigeDatum = this.getTodayPlusDay(2);
         }
@@ -89,7 +87,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
         for(Ausfall2 ausfall : this.ausfallList)
         {
             System.out.println("Item");
-            if(ausfall.getZieldatumString().equals(anzeigeDatum)) {
+            /*if(ausfall.getZieldatumString().equals(anzeigeDatum)) {
                 if (ausfall.isEntfall())
                 {
                     valueList.add(String.valueOf(ausfall.getStunde()) + "A " + ausfall.getFach() + " (" + ausfall.getLehrer().replaceAll("chrom","") + ")");
@@ -98,10 +96,18 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
                 {
                     valueList.add(String.valueOf(ausfall.getStunde()) + "V " + ausfall.getFach() + " (" + ausfall.getLehrer().replaceAll("chrom","") + ") \n-> "+ausfall.getZielfach()+" ("+ausfall.getVertretung().replaceAll("chrom","")+")");
                 }
+            }*/
+            if (ausfall.isEntfall())
+            {
+                valueList.add(String.valueOf(ausfall.getStunde()) + "A " + ausfall.getFach() + " (" + ausfall.getLehrer().replaceAll("chrom","") + ")");
+            }
+            else
+            {
+                valueList.add(String.valueOf(ausfall.getStunde()) + "V " + ausfall.getFach() + " (" + ausfall.getLehrer().replaceAll("chrom","") + ") \n-> "+ausfall.getZielfach()+" ("+ausfall.getVertretung().replaceAll("chrom","")+")");
             }
         }
-        ListViewAdapter = new ArrayAdapter<>(getApplicationContext(), R.layout.list_item, valueList);
-        listView.setAdapter(ListViewAdapter);
+        listViewAdapter = new ArrayAdapter<>(getApplicationContext(), R.layout.list_item, valueList);
+        listView.setAdapter(listViewAdapter);
     }
 
     public String getTodayPlusDay(int days)
@@ -111,15 +117,14 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
         Calendar c = Calendar.getInstance();
         c.setTime(heute);
         c.add(Calendar.DATE, days);  // number of days to add
-        String df = sdf.format(c.getTime());
-        return df;
+        return sdf.format(c.getTime());
     }
 
 
     private void checkStartSetup() {
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
         boolean startSetup = settings.getBoolean("startSetup", false);
-        if(startSetup == false)
+        if(!startSetup)
         {
             Intent nextScreen = new Intent(getApplicationContext(), Setup.class);
             startActivity(nextScreen);
@@ -141,17 +146,19 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
             case 1:
                 mTitle = getString(R.string.title_section1);
                 Toast.makeText(this, "Heute", Toast.LENGTH_SHORT).show();
-                this.currectDate = "heute";
+                this.currentDate = "heute";
                 if(mNavigationDrawerFragment != null)  mNavigationDrawerFragment.updateFeed();
                 break;
             case 2:
                 mTitle = getString(R.string.title_section2);
-                this.currectDate = "morgen";
+                Toast.makeText(this, "Morgen", Toast.LENGTH_SHORT).show();
+                this.currentDate = "morgen";
                 if(mNavigationDrawerFragment != null)  mNavigationDrawerFragment.updateFeed();
                 break;
             case 3:
                 mTitle = getString(R.string.title_section3);
-                this.currectDate = "uebermorgen";
+                Toast.makeText(this, "Übermorgen", Toast.LENGTH_SHORT).show();
+                this.currentDate = "uebermorgen";
                 if(mNavigationDrawerFragment != null)  mNavigationDrawerFragment.updateFeed();
                 break;
         }
