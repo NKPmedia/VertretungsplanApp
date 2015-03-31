@@ -40,7 +40,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
     private Handler uiHandler = new UIHandler();
     private String currectDate ="heute";
     private ArrayList<Ausfall2> ausfallList = new ArrayList<Ausfall2>();
-    private ArrayAdapter<String> ListViewAdapter = null;
+    private ArrayAdapter<Ausfall2> ListViewAdapter = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,6 +70,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
     private void updateListView() {
         ListView listView = (ListView) findViewById(R.id.listView);
         ArrayList<String> valueList = new ArrayList<String>();
+        ArrayList<Ausfall2> valueList2 = new ArrayList<Ausfall2>();
 
         String anzeigeDatum = "";
         if(this.currectDate.equals("heute"))
@@ -93,14 +94,18 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
                 if (ausfall.isEntfall())
                 {
                     valueList.add(String.valueOf(ausfall.getStunde()) + "A " + ausfall.getFach() + " (" + ausfall.getLehrer().replaceAll("chrom","") + ")");
+                    valueList2.add(ausfall);
                 }
                 else
                 {
                     valueList.add(String.valueOf(ausfall.getStunde()) + "V " + ausfall.getFach() + " (" + ausfall.getLehrer().replaceAll("chrom","") + ") \n-> "+ausfall.getZielfach()+" ("+ausfall.getVertretung().replaceAll("chrom","")+")");
+                    valueList2.add(ausfall);
                 }
             }
         }
-        ListViewAdapter = new ArrayAdapter<>(getApplicationContext(), R.layout.list_item, valueList);
+//        ListViewAdapter = new ArrayAdapter<>(getApplicationContext(), R.layout.list_item, valueList);
+        ListViewAdapter = new AusfallListAdapter(getApplicationContext(),R.layout.customrowlayout,valueList2);
+
         listView.setAdapter(ListViewAdapter);
     }
 
