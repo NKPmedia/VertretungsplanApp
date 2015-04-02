@@ -103,10 +103,12 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
             if (ausfall.isEntfall())
             {
                 valueList.add(String.valueOf(ausfall.getStunde()) + "A " + ausfall.getFach() + " (" + ausfall.getLehrer().replaceAll("chrom","") + ")");
+                valueList2.add(ausfall);
             }
             else
             {
                 valueList.add(String.valueOf(ausfall.getStunde()) + "V " + ausfall.getFach() + " (" + ausfall.getLehrer().replaceAll("chrom","") + ") \n-> "+ausfall.getZielfach()+" ("+ausfall.getVertretung().replaceAll("chrom","")+")");
+                valueList2.add(ausfall);
             }
         }
 
