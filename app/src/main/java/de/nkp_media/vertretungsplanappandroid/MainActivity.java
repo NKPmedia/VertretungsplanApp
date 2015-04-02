@@ -38,9 +38,15 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
      */
     private CharSequence mTitle;
     private Handler uiHandler = new UIHandler();
+<<<<<<< HEAD
     private String currentDate ="heute";
     private ArrayList<Ausfall2> ausfallList = new ArrayList<>();
     private ArrayAdapter<String> listViewAdapter = null;
+=======
+    private String currectDate ="heute";
+    private ArrayList<Ausfall2> ausfallList = new ArrayList<Ausfall2>();
+    private ArrayAdapter<Ausfall2> ListViewAdapter = null;
+>>>>>>> d1a3d55a79a5fe33d289a165802f0224766c1d07
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,6 +74,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
     private void updateListView() {
         ListView listView = (ListView) findViewById(R.id.listView);
         ArrayList<String> valueList = new ArrayList<String>();
+        ArrayList<Ausfall2> valueList2 = new ArrayList<Ausfall2>();
 
         String anzeigeDatum = "";
         if(this.currentDate.equals("heute"))
@@ -91,10 +98,12 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
                 if (ausfall.isEntfall())
                 {
                     valueList.add(String.valueOf(ausfall.getStunde()) + "A " + ausfall.getFach() + " (" + ausfall.getLehrer().replaceAll("chrom","") + ")");
+                    valueList2.add(ausfall);
                 }
                 else
                 {
                     valueList.add(String.valueOf(ausfall.getStunde()) + "V " + ausfall.getFach() + " (" + ausfall.getLehrer().replaceAll("chrom","") + ") \n-> "+ausfall.getZielfach()+" ("+ausfall.getVertretung().replaceAll("chrom","")+")");
+                    valueList2.add(ausfall);
                 }
             }*/
             if (ausfall.isEntfall())
@@ -106,8 +115,15 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
                 valueList.add(String.valueOf(ausfall.getStunde()) + "V " + ausfall.getFach() + " (" + ausfall.getLehrer().replaceAll("chrom","") + ") \n-> "+ausfall.getZielfach()+" ("+ausfall.getVertretung().replaceAll("chrom","")+")");
             }
         }
+<<<<<<< HEAD
         listViewAdapter = new ArrayAdapter<>(getApplicationContext(), R.layout.list_item, valueList);
         listView.setAdapter(listViewAdapter);
+=======
+//        ListViewAdapter = new ArrayAdapter<>(getApplicationContext(), R.layout.list_item, valueList);
+        ListViewAdapter = new AusfallListAdapter(getApplicationContext(),R.layout.customrowlayout,valueList2);
+
+        listView.setAdapter(ListViewAdapter);
+>>>>>>> d1a3d55a79a5fe33d289a165802f0224766c1d07
     }
 
     public String getTodayPlusDay(int days)
