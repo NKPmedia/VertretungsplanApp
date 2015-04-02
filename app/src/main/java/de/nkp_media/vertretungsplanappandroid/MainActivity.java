@@ -40,7 +40,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
     private Handler uiHandler = new UIHandler();
     private String currentDate ="heute";
     private ArrayList<Ausfall2> ausfallList = new ArrayList<>();
-    private ArrayAdapter<String> listViewAdapter = null;
+    private AusfallListAdapter listViewAdapter = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -109,7 +109,8 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
                 valueList.add(String.valueOf(ausfall.getStunde()) + "V " + ausfall.getFach() + " (" + ausfall.getLehrer().replaceAll("chrom","") + ") \n-> "+ausfall.getZielfach()+" ("+ausfall.getVertretung().replaceAll("chrom","")+")");
             }
         }
-        listViewAdapter = new ArrayAdapter<>(getApplicationContext(), R.layout.customrowlayout, valueList);
+
+        listViewAdapter = new AusfallListAdapter(getApplicationContext(),R.layout.customrowlayout,valueList2);
         listView.setAdapter(listViewAdapter);
     }
 
