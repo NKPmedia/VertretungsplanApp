@@ -26,6 +26,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
+import de.nkp_media.vertretungsplanappandroid.caching.CacheManager;
+
 public class MainActivity extends ActionBarActivity implements NavigationDrawerFragment.NavigationDrawerCallbacks {
 
     /**
@@ -37,10 +39,15 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
      * Used to store the last screen title. For use in {@link #restoreActionBar()}.
      */
     private CharSequence mTitle;
-    private Handler uiHandler = new UIHandler();
+    private Handler uiHandler;
     private String currentDate ="heute";
     private ArrayList<Ausfall2> ausfallList = new ArrayList<>();
     private AusfallListAdapter listViewAdapter = null;
+    private CacheManager cacheManager;
+
+    public MainActivity() {
+        this
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -249,12 +256,20 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
     }
 
     class UIHandler extends Handler {
+
+        CacheManager cacheManager;
+
+        public UIHandler(CacheManager manager) {
+            this.cacheManager = manager;
+        }
+
         @Override
         public void handleMessage(Message msg) {
             // a message is received; update UI text view
 //            textView.setText(msg.obj.toString());
             System.out.println("Message");
             ausfallList = (ArrayList<Ausfall2>) msg.obj;
+            cacheManager.notifyAll();
             if(ausfallList == null)
             {
                 System.out.println("Null List");
