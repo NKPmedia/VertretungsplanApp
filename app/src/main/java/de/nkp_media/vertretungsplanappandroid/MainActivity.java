@@ -17,7 +17,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -46,7 +45,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
     private CacheManager cacheManager;
 
     public MainActivity() {
-        this
+        this.uiHandler = new UIHandler(this.cacheManager);
     }
 
     @Override
@@ -269,7 +268,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 //            textView.setText(msg.obj.toString());
             System.out.println("Message");
             ausfallList = (ArrayList<Ausfall2>) msg.obj;
-            cacheManager.notifyAll();
+//            cacheManager.notifyAll();
             if(ausfallList == null)
             {
                 System.out.println("Null List");

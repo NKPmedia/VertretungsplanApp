@@ -30,7 +30,7 @@ public class FeedUpdate extends Thread{
         InputStream stream = null;
         try {
             System.out.println("Started FeedUpdater");
-            stream = downloadUrl("http://winet.no-ip.info/blackboard/rss/get_android_rss.php?klasse="+this.klasse);
+            stream = downloadUrl("http://winet.no-ip.info/blackboard/rss/get_android_rss_debug.php?klasse="+this.klasse);
 
 //            BufferedReader buff = new BufferedReader(new InputStreamReader(stream));
 //            String line;
@@ -46,11 +46,14 @@ public class FeedUpdate extends Thread{
 
             Message msg = Message.obtain(uiHandler);
             msg.obj =ausfaelle;
-            if(msg.obj == null)
+            if(msg.obj == null || msg == null)
             {
                 System.out.println("Null obj");
             }
-            this.uiHandler.sendMessage(msg);
+            else
+            {
+                this.uiHandler.sendMessage(msg);
+            }
 
         } catch (IOException e) {
             e.printStackTrace();
