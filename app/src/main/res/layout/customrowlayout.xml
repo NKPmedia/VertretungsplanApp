@@ -2,7 +2,7 @@
 <RelativeLayout  xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
-    android:background="#FFDAFF7F"
+    android:background="#ff00b09a"
     android:padding="8dp"
     android:textColor="@color/UserSchwarz">
 
@@ -42,5 +42,41 @@
         android:layout_toRightOf="@+id/fach"
         android:layout_toEndOf="@+id/fach"
         android:textColor="@color/UserSchwarz"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="->"
+        android:id="@+id/textView3"
+        android:layout_marginLeft="6dp"
+        android:layout_marginStart="6dp"
+        android:layout_alignTop="@+id/lehrer"
+        android:layout_toRightOf="@+id/lehrer"
+        android:layout_toEndOf="@+id/lehrer" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="Herr Geisler"
+        android:id="@+id/vertretung"
+        android:layout_marginLeft="6dp"
+        android:layout_marginStart="6dp"
+        android:layout_alignTop="@+id/textView3"
+        android:layout_toRightOf="@+id/textView3"
+        android:layout_toEndOf="@+id/textView3" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="(Englisch)"
+        android:id="@+id/vfach"
+        android:layout_marginLeft="6dp"
+        android:layout_marginStart="6dp"
+        android:layout_alignTop="@+id/vertretung"
+        android:layout_toRightOf="@+id/vertretung"
+        android:layout_toEndOf="@+id/vertretung" />
 
 </RelativeLayout >

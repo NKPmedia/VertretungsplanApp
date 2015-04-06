@@ -16,10 +16,12 @@ public class FeedUpdate extends Thread{
 
     private final Handler uiHandler;
     private final String klasse;
+    private final MainActivity mainActivity;
 
-    public FeedUpdate(Handler uihandler, String klasse) {
+    public FeedUpdate(Handler uihandler, String klasse, MainActivity mainActivity) {
         this.uiHandler = uihandler;
         this.klasse = klasse;
+        this.mainActivity = mainActivity;
     }
 
     @Override
@@ -31,6 +33,7 @@ public class FeedUpdate extends Thread{
         try {
             System.out.println("Started FeedUpdater");
             stream = downloadUrl("http://winet.no-ip.info/blackboard/rss/get_android_rss_debug.php?klasse="+this.klasse);
+//            stream = downloadUrl("http://winet.no-ip.info/blackboard/rss/get_android_rss.php?klasse="+this.klasse);
 
 //            BufferedReader buff = new BufferedReader(new InputStreamReader(stream));
 //            String line;
@@ -57,6 +60,7 @@ public class FeedUpdate extends Thread{
 
         } catch (IOException e) {
             e.printStackTrace();
+            this.mainActivity.ringProgressDialog.dismiss();
         }
     }
 

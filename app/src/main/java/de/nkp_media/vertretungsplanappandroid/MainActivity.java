@@ -1,6 +1,7 @@
 package de.nkp_media.vertretungsplanappandroid;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -43,6 +44,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
     private ArrayList<Ausfall2> ausfallList = new ArrayList<>();
     private AusfallListAdapter listViewAdapter = null;
     private CacheManager cacheManager;
+    public ProgressDialog ringProgressDialog;
 
     public MainActivity() {
         this.uiHandler = new UIHandler(this.cacheManager);
@@ -274,6 +276,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
                 System.out.println("Null List");
             }
             updateListView();
+            ringProgressDialog.dismiss();
             super.handleMessage(msg);
         }
 

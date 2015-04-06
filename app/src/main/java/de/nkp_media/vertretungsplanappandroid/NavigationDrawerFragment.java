@@ -1,6 +1,7 @@
 package de.nkp_media.vertretungsplanappandroid;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
@@ -260,9 +261,11 @@ public class NavigationDrawerFragment extends Fragment {
     }
 
     public void updateFeed() {
+        this.mainActivity.ringProgressDialog = ProgressDialog.show(this.mainActivity, "Please wait ...",	"Downloading Data ...", true);
+        this.mainActivity.ringProgressDialog.setCancelable(true);
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this.mainActivity);
         String klasse = settings.getString("klasse", "S4");
-        FeedUpdate update = new FeedUpdate(this.uihandler,klasse);
+        FeedUpdate update = new FeedUpdate(this.uihandler,klasse,this.mainActivity);
         update.start();
     }
 

@@ -32,13 +32,31 @@ public class AusfallListAdapter extends ArrayAdapter<Ausfall2> {
         Ausfall2 ausfall = (Ausfall2) this.data.get(position);
         if(row == null && !ausfall.isEntfall()) row = LayoutInflater.from(context).inflate(R.layout.customrowlayout, parent, false);
         if(row == null && ausfall.isEntfall()) row = LayoutInflater.from(context).inflate(R.layout.customrowlayout2, parent, false);
-        TextView stunde = (TextView) row.findViewById(R.id.stunde);
-        TextView lehrer = (TextView) row.findViewById(R.id.lehrer);
-        TextView fach = (TextView) row.findViewById(R.id.fach);
+        if(ausfall.isEntfall())
+        {
+            TextView stunde = (TextView) row.findViewById(R.id.stunde);
+            TextView lehrer = (TextView) row.findViewById(R.id.lehrer);
+            TextView fach = (TextView) row.findViewById(R.id.fach);
 
-        stunde.setText(String.valueOf(ausfall.getStunde()));
-        lehrer.setText(ausfall.getLehrer().replaceAll("chrom",""));
-        fach.setText(ausfall.getFach());
+            stunde.setText(String.valueOf(ausfall.getStunde()));
+            lehrer.setText(ausfall.getLehrer().replaceAll("chrom",""));
+            fach.setText(ausfall.getFach());
+        }
+        else
+        {
+            TextView stunde = (TextView) row.findViewById(R.id.stunde);
+            TextView lehrer = (TextView) row.findViewById(R.id.lehrer);
+            TextView fach = (TextView) row.findViewById(R.id.fach);
+            TextView vertretung = (TextView) row.findViewById(R.id.vertretung);
+            TextView vfach = (TextView) row.findViewById(R.id.vfach);
+
+
+            stunde.setText(String.valueOf(ausfall.getStunde()));
+            lehrer.setText(ausfall.getLehrer().replaceAll("chrom",""));
+            fach.setText(ausfall.getFach());
+            vertretung.setText(ausfall.getVertretung());
+            vfach.setText(ausfall.getZielfach());
+        }
         return row;
     }
 }
