@@ -26,32 +26,32 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
+import de.nkp_media.vertretungsplanappandroid.Sync.Sync;
 import de.nkp_media.vertretungsplanappandroid.caching.CacheManager;
+import de.nkp_media.vertretungsplanappandroid.data.FeedDataProvider;
 
 public class MainActivity extends ActionBarActivity implements NavigationDrawerFragment.NavigationDrawerCallbacks {
 
-    /**
-     * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
-     */
+
     private NavigationDrawerFragment mNavigationDrawerFragment;
 
-    /**
-     * Used to store the last screen title. For use in {@link #restoreActionBar()}.
-     */
     private CharSequence mTitle;
     private Handler uiHandler;
     private String currentDate ="heute";
-    private ArrayList<Ausfall2> ausfallList = new ArrayList<>();
+    private ArrayList<Ausfall2> ausfallList = new ArrayList<Ausfall2>();
     private AusfallListAdapter listViewAdapter = null;
-    private CacheManager cacheManager;
+    public CacheManager cacheManager;
     public ProgressDialog ringProgressDialog;
+    private FeedDataProvider dataProvider;
+
 
     public MainActivity() {
-        this.uiHandler = new UIHandler(this.cacheManager);
+        this.uiHandler = new UIHandler();
+
     }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -60,21 +60,32 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
         mNavigationDrawerFragment.setHandler(this.uiHandler);
         mNavigationDrawerFragment.setMainActivity(this);
         // Set up the drawer.
-        mNavigationDrawerFragment.setUp(
-                R.id.navigation_drawer,
-                (DrawerLayout) findViewById(R.id.drawer_layout));
-        mNavigationDrawerFragment.updateFeed();
+        mNavigationDrawerFragment.setUp(R.id.navigation_drawer, (DrawerLayout) findViewById(R.id.drawer_layout));
+
         this.checkStartSetup();
+
+        Intent intent = new Intent(this, Sync.class);
+        startService(intent);
+
+        this.dataProvider = new FeedDataProvider(this);
+
+        this.cacheManager = new CacheManager(this);
     }
 
-    @Override
-    protected void onStart()
-    {
-        super.onStart();
-    }
 
-    private void updateListView() {
+
+    public void updateListView() {
+//        System.out.println("UpdateListView");
         ListView listView = (ListView) findViewById(R.id.listView);
+        if(listView == null){
+            System.out.println("ListView is null");
+            return;
+        }
+        if(this.ausfallList == null)
+        {
+            System.out.println("AusfallList is null");
+            return;
+        }
         ArrayList<String> valueList = new ArrayList<String>();
         ArrayList<Ausfall2> valueList2 = new ArrayList<Ausfall2>();
 
@@ -93,10 +104,9 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
         }
 
 
-        for(Ausfall2 ausfall : this.ausfallList)
-        {
+        for(Ausfall2 ausfall : this.ausfallList) {
             System.out.println("Item");
-            /*if(ausfall.getZieldatumString().equals(anzeigeDatum)) {
+            if(ausfall.getZieldatumString().equals(anzeigeDatum)) {
                 if (ausfall.isEntfall())
                 {
                     valueList.add(String.valueOf(ausfall.getStunde()) + "A " + ausfall.getFach() + " (" + ausfall.getLehrer().replaceAll("chrom","") + ")");
@@ -107,19 +117,15 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
                     valueList.add(String.valueOf(ausfall.getStunde()) + "V " + ausfall.getFach() + " (" + ausfall.getLehrer().replaceAll("chrom","") + ") \n-> "+ausfall.getZielfach()+" ("+ausfall.getVertretung().replaceAll("chrom","")+")");
                     valueList2.add(ausfall);
                 }
-            }*/
-            if (ausfall.isEntfall())
-            {
-                valueList.add(String.valueOf(ausfall.getStunde()) + "A " + ausfall.getFach() + " (" + ausfall.getLehrer().replaceAll("chrom","") + ")");
-                valueList2.add(ausfall);
             }
-            else
-            {
-                valueList.add(String.valueOf(ausfall.getStunde()) + "V " + ausfall.getFach() + " (" + ausfall.getLehrer().replaceAll("chrom","") + ") \n-> "+ausfall.getZielfach()+" ("+ausfall.getVertretung().replaceAll("chrom","")+")");
-                valueList2.add(ausfall);
-            }
+//            if (ausfall.isEntfall()) {
+//                valueList.add(String.valueOf(ausfall.getStunde()) + "A " + ausfall.getFach() + " (" + ausfall.getLehrer().replaceAll("chrom", "") + ")");
+//                valueList2.add(ausfall);
+//            } else {
+//                valueList.add(String.valueOf(ausfall.getStunde()) + "V " + ausfall.getFach() + " (" + ausfall.getLehrer().replaceAll("chrom", "") + ") \n-> " + ausfall.getZielfach() + " (" + ausfall.getVertretung().replaceAll("chrom", "") + ")");
+//                valueList2.add(ausfall);
+//            }
         }
-
         listViewAdapter = new AusfallListAdapter(getApplicationContext(),R.layout.customrowlayout,valueList2);
         listView.setAdapter(listViewAdapter);
     }
@@ -138,7 +144,9 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
     private void checkStartSetup() {
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
         boolean startSetup = settings.getBoolean("startSetup", false);
-        if(!startSetup)
+        String password = settings.getString("password","");
+        System.out.println(password);
+        if(!startSetup || !password.equals("wichern"))
         {
             Intent nextScreen = new Intent(getApplicationContext(), Setup.class);
             startActivity(nextScreen);
@@ -151,7 +159,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
         // update the main content by replacing fragments
         FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction()
-                .replace(R.id.container, PlaceholderFragment.newInstance(position + 1))
+                .replace(R.id.container, PlaceholderFragment.newInstance(position + 1, this))
                 .commit();
     }
 
@@ -161,20 +169,25 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
                 mTitle = getString(R.string.title_section1);
                 Toast.makeText(this, "Heute", Toast.LENGTH_SHORT).show();
                 this.currentDate = "heute";
-                if(mNavigationDrawerFragment != null)  mNavigationDrawerFragment.updateFeed();
                 break;
             case 2:
                 mTitle = getString(R.string.title_section2);
                 Toast.makeText(this, "Morgen", Toast.LENGTH_SHORT).show();
                 this.currentDate = "morgen";
-                if(mNavigationDrawerFragment != null)  mNavigationDrawerFragment.updateFeed();
                 break;
             case 3:
                 mTitle = getString(R.string.title_section3);
                 Toast.makeText(this, "Übermorgen", Toast.LENGTH_SHORT).show();
                 this.currentDate = "uebermorgen";
-                if(mNavigationDrawerFragment != null)  mNavigationDrawerFragment.updateFeed();
                 break;
+        }
+        try {
+            this.ausfallList = this.cacheManager.getAusfallList(mNavigationDrawerFragment);
+        }
+        catch(Exception e)
+        {
+            System.out.println();
+            e.printStackTrace();
         }
     }
 
@@ -225,27 +238,37 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
          * fragment.
          */
         private static final String ARG_SECTION_NUMBER = "section_number";
+        private  MainActivity mainActivity = null;
 
         /**
          * Returns a new instance of this fragment for the given section
          * number.
          */
-        public static PlaceholderFragment newInstance(int sectionNumber) {
-            PlaceholderFragment fragment = new PlaceholderFragment();
+        public static PlaceholderFragment newInstance(int sectionNumber, MainActivity mainActivity) {
+            PlaceholderFragment fragment = new PlaceholderFragment(mainActivity);
             Bundle args = new Bundle();
             args.putInt(ARG_SECTION_NUMBER, sectionNumber);
             fragment.setArguments(args);
             return fragment;
         }
 
-        public PlaceholderFragment() {
+        public PlaceholderFragment(MainActivity mainActivity) {
+            this.mainActivity = mainActivity;
         }
-
+        public PlaceholderFragment(){
+        }
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_main, container, false);
             return rootView;
+        }
+
+        @Override
+        public void onStart()
+        {
+            super.onStart();
+            this.mainActivity.updateListView();
         }
 
         @Override
@@ -257,25 +280,25 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
     }
 
     class UIHandler extends Handler {
-
-        CacheManager cacheManager;
-
-        public UIHandler(CacheManager manager) {
-            this.cacheManager = manager;
-        }
-
         @Override
         public void handleMessage(Message msg) {
-            // a message is received; update UI text view
-//            textView.setText(msg.obj.toString());
             System.out.println("Message");
             ausfallList = (ArrayList<Ausfall2>) msg.obj;
-//            cacheManager.notifyAll();
+
+            if(cacheManager == null)
+            {
+                System.out.println("Null CacheManager");
+            }
+
             if(ausfallList == null)
             {
                 System.out.println("Null List");
             }
-            updateListView();
+            else {
+                cacheManager.updateCach(ausfallList);
+                dataProvider.updateDatabase(ausfallList);
+                updateListView();
+            }
             ringProgressDialog.dismiss();
             super.handleMessage(msg);
         }

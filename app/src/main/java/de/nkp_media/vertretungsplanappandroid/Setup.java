@@ -54,7 +54,10 @@ public class Setup extends ActionBarActivity implements View.OnClickListener {
             settings.edit().putBoolean("startSetup",true).commit();
 
             EditText mEdit   = (EditText)findViewById(R.id.setupKlasse);
-            settings.edit().putString("klasse",mEdit.getText().toString()).commit();
+            settings.edit().putString("klasse", mEdit.getText().toString()).commit();
+
+            EditText mPass   = (EditText)findViewById(R.id.setupPasswort);
+            settings.edit().putString("password",mPass.getText().toString()).commit();
 
             this.finish();
         }

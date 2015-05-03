@@ -24,6 +24,8 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import de.nkp_media.vertretungsplanappandroid.Sync.FeedUpdate;
+
 /**
  * Fragment used for managing interactions for and presentation of a navigation drawer.
  * See the <a href="https://developer.android.com/design/patterns/navigation-drawer.html#Interaction">
@@ -254,6 +256,7 @@ public class NavigationDrawerFragment extends Fragment {
         if (item.getItemId() == R.id.action_example) {
             Toast.makeText(getActivity(), "Aktuslisieren", Toast.LENGTH_SHORT).show();
             this.updateFeed();
+//            this.mainActivity.onRefreshButtonClick();
             return true;
         }
 

@@ -1,4 +1,4 @@
-package de.nkp_media.vertretungsplanappandroid;
+package de.nkp_media.vertretungsplanappandroid.Sync;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -9,6 +9,8 @@ import java.io.InputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+
+import de.nkp_media.vertretungsplanappandroid.Ausfall2;
 
 /**
  * Created by paul on 20.03.15.

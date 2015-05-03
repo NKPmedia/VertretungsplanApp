@@ -11,29 +11,25 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 
 import de.nkp_media.vertretungsplanappandroid.Ausfall2;
-import de.nkp_media.vertretungsplanappandroid.FeedUpdate;
 import de.nkp_media.vertretungsplanappandroid.NavigationDrawerFragment;
 
 public class CacheManager {
 
     private Context androidContext;
-    private NavigationDrawerFragment fragment;
 
     private FullCache cache = null;
     private File cacheFile = null;
+    private ArrayList<Ausfall2> ausfallList;
 
-    public CacheManager(Context context, NavigationDrawerFragment fragment, ArrayList<Ausfall2> initialData) {
-        this.androidContext = context;
-        this.fragment = fragment;
-        this.init(initialData);
+    public CacheManager(Context mainActivity) {
+        this.androidContext = mainActivity;
     }
 
-    private void init(ArrayList<Ausfall2> initialData) {
+    private void init() {
         this.cacheFile = new File(androidContext.getCacheDir(), "cache.txt");
         if (!cacheFile.exists()) {
             try {
                 cacheFile.createNewFile();
-                this.createCache(initialData);
             }
             catch (IOException ex) {
                 ex.printStackTrace();
@@ -44,7 +40,8 @@ public class CacheManager {
     private void createCache(ArrayList<Ausfall2> initialData) {
         try {
             ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(cacheFile));
-            out.writeObject(new FullCache(initialData));
+            this.cache = new FullCache(initialData);
+            out.writeObject(this.cache);
             out.close();
         }
         catch (IOException ex) {
@@ -52,35 +49,51 @@ public class CacheManager {
         }
     }
 
-    public ArrayList<Ausfall2> getContent() {
+    private void refresh(NavigationDrawerFragment mNavigationDrawerFragment) {
+        mNavigationDrawerFragment.updateFeed();
+    }
+
+    public void updateCach(ArrayList<Ausfall2> ausfallList) {
+        System.out.println("Update Cach");
+        this.init();
+        this.createCache(ausfallList);
+    }
+
+    public ArrayList<Ausfall2> getAusfallList(NavigationDrawerFragment mNavigationDrawerFragment) {
         if (cache == null) {
+            System.out.println("Get cach File");
             try {
-                ObjectInputStream in = new ObjectInputStream(new FileInputStream(cacheFile));
-                this.cache = (FullCache) in.readObject();
-                if (!this.cache.isValid()) {
-                    this.refresh();
+                this.cacheFile = new File(androidContext.getCacheDir(), "cache.txt");
+                if (cacheFile.exists()) {
+                    ObjectInputStream in = new ObjectInputStream(new FileInputStream(this.cacheFile));
+                    this.cache = (FullCache) in.readObject();
+                    if (!this.cache.isValid()) {
+                        this.refresh(mNavigationDrawerFragment);
+                    }
+                    return this.cache.getContent();
                 }
-                return this.cache.getContent();
+                else
+                {
+                    System.out.println("Cach file is too old");
+                    this.refresh(mNavigationDrawerFragment);
+                }
             }
             catch (IOException | ClassNotFoundException ex) {
+                this.refresh(mNavigationDrawerFragment);
+                System.out.println("Cant read cach file");
                 ex.printStackTrace();
                 return null;
             }
         }
-        else {
+        else if (this.cache.isValid()) {
+            System.out.println("Get Cach");
             return cache.getContent();
         }
-    }
-
-    private void refresh() {
-        this.fragment.updateFeed();
-        try {
-            this.wait();
-
+        else
+        {
+            System.out.println("Cach is too old");
+            this.refresh(mNavigationDrawerFragment);
         }
-        catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        return ausfallList;
     }
-
 }

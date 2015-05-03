@@ -1,8 +1,9 @@
 package de.nkp_media.vertretungsplanappandroid;
 
+import java.io.Serializable;
 import java.util.Date;
 
-public class Ausfall2 {
+public class Ausfall2 implements Serializable{
 
     int stunde;
     private String lehrer;

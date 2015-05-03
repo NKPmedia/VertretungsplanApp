@@ -13,6 +13,8 @@
 
     <string name="action_settings">Einstellungen</string>
     <string name="title_activity_setup">Setup</string>
+    <string name="pref_title_passwort">Passwort</string>
+    <string name="pref_default_passwort" />
 
     <color name="UserSchwarz">#000000</color>
 </resources>

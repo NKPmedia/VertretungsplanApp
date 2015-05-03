@@ -1,4 +1,4 @@
-package de.nkp_media.vertretungsplanappandroid;
+package de.nkp_media.vertretungsplanappandroid.Sync;
 
 import android.os.Handler;
 import android.os.Message;
@@ -8,6 +8,9 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+
+import de.nkp_media.vertretungsplanappandroid.Ausfall2;
+import de.nkp_media.vertretungsplanappandroid.MainActivity;
 
 /**
  * Created by paul on 20.03.15.
@@ -23,7 +26,6 @@ public class FeedUpdate extends Thread{
         this.klasse = klasse;
         this.mainActivity = mainActivity;
     }
-
     @Override
     public void run()
     {
@@ -32,8 +34,8 @@ public class FeedUpdate extends Thread{
         InputStream stream = null;
         try {
             System.out.println("Started FeedUpdater");
-            stream = downloadUrl("http://winet.no-ip.info/blackboard/rss/get_android_rss_debug.php?klasse="+this.klasse);
-//            stream = downloadUrl("http://winet.no-ip.info/blackboard/rss/get_android_rss.php?klasse="+this.klasse);
+//            stream = downloadUrl("http://winet.no-ip.info/blackboard/rss/get_android_rss_debug.php?klasse="+this.klasse);
+            stream = downloadUrl("http://winet.no-ip.info/blackboard/rss/get_android_rss.php?klasse="+this.klasse);
 
 //            BufferedReader buff = new BufferedReader(new InputStreamReader(stream));
 //            String line;

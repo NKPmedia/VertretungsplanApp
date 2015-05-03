@@ -50,12 +50,19 @@ public class AusfallListAdapter extends ArrayAdapter<Ausfall2> {
             TextView vertretung = (TextView) row.findViewById(R.id.vertretung);
             TextView vfach = (TextView) row.findViewById(R.id.vfach);
 
+            try {
+                stunde.setText(String.valueOf(ausfall.getStunde()));
+                lehrer.setText(ausfall.getLehrer().replaceAll("chrom",""));
+                fach.setText(ausfall.getFach());
+                vertretung.setText(ausfall.getVertretung());
+                vfach.setText(ausfall.getZielfach());
+            }
+            catch(Exception e)
+            {
+                e.printStackTrace();
+            }
 
-            stunde.setText(String.valueOf(ausfall.getStunde()));
-            lehrer.setText(ausfall.getLehrer().replaceAll("chrom",""));
-            fach.setText(ausfall.getFach());
-            vertretung.setText(ausfall.getVertretung());
-            vfach.setText(ausfall.getZielfach());
+
         }
         return row;
     }
