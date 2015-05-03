@@ -30,8 +30,13 @@ public class AusfallListAdapter extends ArrayAdapter<Ausfall2> {
     public View getView(int position, View convertView, ViewGroup parent) {
         View row = convertView;
         Ausfall2 ausfall = (Ausfall2) this.data.get(position);
-        if(row == null && !ausfall.isEntfall()) row = LayoutInflater.from(context).inflate(R.layout.customrowlayout, parent, false);
-        if(row == null && ausfall.isEntfall()) row = LayoutInflater.from(context).inflate(R.layout.customrowlayout2, parent, false);
+        if(!ausfall.isEntfall()) {
+            row = LayoutInflater.from(context).inflate(R.layout.customrowlayout, parent, false);
+        }
+        if(ausfall.isEntfall())
+        {
+            row = LayoutInflater.from(context).inflate(R.layout.customrowlayout2, parent, false);
+        }
         if(ausfall.isEntfall())
         {
             TextView stunde = (TextView) row.findViewById(R.id.stunde);
