@@ -1,5 +1,7 @@
 package de.nkp_media.vertretungsplanappandroid.Sync;
 
+import android.util.Log;
+
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
@@ -11,6 +13,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
 import de.nkp_media.vertretungsplanappandroid.Ausfall2;
+import de.nkp_media.vertretungsplanappandroid.News;
 
 /**
  * Created by paul on 20.03.15.
@@ -20,7 +23,9 @@ import de.nkp_media.vertretungsplanappandroid.Ausfall2;
 public class RSSFeedParser {
 
 
-    public  ArrayList<Ausfall2> parse(InputStream stream) {
+    private static final String TAG = "RSSFeedParser";
+
+    public ArrayList<ArrayList> parse(InputStream stream) {
 
         XmlPullParserFactory pullParserFactory;
         try {
@@ -44,16 +49,19 @@ public class RSSFeedParser {
         return null;
     }
 
-    private ArrayList<Ausfall2> parseXML(XmlPullParser parser) throws XmlPullParserException, IOException, ParseException {
+    private ArrayList<ArrayList> parseXML(XmlPullParser parser) throws XmlPullParserException, IOException, ParseException {
         ArrayList<Ausfall2> ausfaelle = null;
+        ArrayList<News> news = null;
         int eventType = parser.getEventType();
         Ausfall2 currentProduct = null;
+        News currentNewsProduct = null;
 
         while (eventType != XmlPullParser.END_DOCUMENT){
             String name = null;
             switch (eventType){
                 case XmlPullParser.START_DOCUMENT:
-                    ausfaelle = new ArrayList<>();
+                    ausfaelle = new ArrayList<Ausfall2>();
+                    news = new ArrayList<News>();
                     break;
                 case XmlPullParser.START_TAG:
                     name = parser.getName();
@@ -67,7 +75,10 @@ public class RSSFeedParser {
                         {
                             currentProduct.setEntfall(false);
                         }
-                    } else if (currentProduct != null){
+                    } else if (name.equals("news")){
+                        currentNewsProduct = new News();
+                    }
+                    else if (currentProduct != null || currentNewsProduct != null){
                         if (name.equals("lehrer")){
                             currentProduct.setLehrer(parser.nextText());
                         } else if (name.equals("fach")){
@@ -84,6 +95,14 @@ public class RSSFeedParser {
                             currentProduct.setZielfach(parser.nextText());
                         } else if (name.equals("raum")){
                             currentProduct.setRaum(parser.nextText());
+                        }else if (name.equals("title")) {
+                            currentNewsProduct.setTitle(parser.nextText());
+                        }else if (name.equals("pubDateNews")){
+                            String datum = parser.nextText();
+                            currentNewsProduct.setZieldatum(new SimpleDateFormat("yyyy-MM-dd").parse(datum));
+                            currentNewsProduct.setDate(datum);
+                        }else if (name.equals("description")){
+                            currentNewsProduct.setContent(parser.nextText());
                         }
 
                     }
@@ -92,22 +111,23 @@ public class RSSFeedParser {
                     name = parser.getName();
                     if (name.equalsIgnoreCase("item") && currentProduct != null){
                         ausfaelle.add(currentProduct);
+                    }else if (name.equalsIgnoreCase("news") && currentNewsProduct != null){
+                        news.add(currentNewsProduct);
                     }
             }
             eventType = parser.next();
         }
-        this.showFeed(ausfaelle);
         if(ausfaelle == null)
         {
             System.out.println("Ausfälle null List");
             ausfaelle = new ArrayList<>();
         }
-        return ausfaelle;
-    }
-
-    private void showFeed(ArrayList<Ausfall2> ausfaelle)
-    {
-
+        Log.d(TAG,"Produced a PlanList with " +ausfaelle.size()+" items");
+        Log.d(TAG,"Produced a NewsList with " +news.size()+" items");
+        ArrayList back = new ArrayList<ArrayList>();
+        back.add(ausfaelle);
+        back.add(news);
+        return back;
     }
 }
 

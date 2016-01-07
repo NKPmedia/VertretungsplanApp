@@ -1,7 +1,9 @@
 package de.nkp_media.vertretungsplanappandroid.Sync;
 
+import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -9,33 +11,38 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 
-import de.nkp_media.vertretungsplanappandroid.Ausfall2;
-import de.nkp_media.vertretungsplanappandroid.MainActivity;
-
 /**
  * Created by paul on 20.03.15.
  */
 public class FeedUpdate extends Thread{
 
+    private static final String TAG = "FeedUpdater";
     private final Handler uiHandler;
     private final String klasse;
-    private final MainActivity mainActivity;
+    private final Context context;
+    private final boolean debugSite;
 
-    public FeedUpdate(Handler uihandler, String klasse, MainActivity mainActivity) {
+    public FeedUpdate(Handler uihandler, String klasse, Context context, boolean debugSite) {
         this.uiHandler = uihandler;
         this.klasse = klasse;
-        this.mainActivity = mainActivity;
+        this.context = context;
+        this.debugSite = debugSite;
     }
     @Override
     public void run()
     {
-//        RSSFeedParser XmlParser = new RSSFeedParser();
         RSSFeedParser XmlParser = new RSSFeedParser();
         InputStream stream = null;
         try {
-            System.out.println("Started FeedUpdater");
-//            stream = downloadUrl("http://winet.no-ip.info/blackboard/rss/get_android_rss_debug.php?klasse="+this.klasse);
-            stream = downloadUrl("http://winet.no-ip.info/blackboard/rss/get_android_rss.php?klasse="+this.klasse);
+            Log.d(TAG,"Start FeedUpdater");
+            if(this.debugSite) {
+                stream = downloadUrl("http://winet-ag.ddns.net/blackboard/rss/get_android_rss_debug.php?klasse=" + this.klasse);
+            }
+            else
+            {
+                stream = downloadUrl("http://winet-ag.ddns.net/blackboard/rss/get_android_rss.php?klasse="+this.klasse);
+            }
+
 
 //            BufferedReader buff = new BufferedReader(new InputStreamReader(stream));
 //            String line;
@@ -46,14 +53,18 @@ public class FeedUpdate extends Thread{
 //
 //            System.out.println(total.toString());
 
-            System.out.println("Parsing");
-            ArrayList<Ausfall2> ausfaelle = XmlParser.parse(stream);
+            Log.d(TAG,"Parsing serverdata");
+            ArrayList<ArrayList> back = XmlParser.parse(stream);
 
             Message msg = Message.obtain(uiHandler);
-            msg.obj =ausfaelle;
+            msg.arg1 = 0;
+            msg.obj =back;
             if(msg.obj == null || msg == null)
             {
-                System.out.println("Null obj");
+                Log.e(TAG,"Msg is null");
+                msg = Message.obtain(uiHandler);
+                msg.arg1 = 1;
+                this.uiHandler.sendMessage(msg);
             }
             else
             {
@@ -62,13 +73,15 @@ public class FeedUpdate extends Thread{
 
         } catch (IOException e) {
             e.printStackTrace();
-            this.mainActivity.ringProgressDialog.dismiss();
+            Message msg = Message.obtain(uiHandler);
+            msg.arg1 = 1;
+            this.uiHandler.sendMessage(msg);
         }
     }
 
     // Given a string representation of a URL, sets up a connection and gets
     // an input stream.
-    private InputStream downloadUrl(String urlString) throws IOException {
+    static public InputStream downloadUrl(String urlString) throws IOException {
         System.out.println("Downloaiding");
         URL url = new URL(urlString);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();

@@ -1,215 +1,136 @@
 package de.nkp_media.vertretungsplanappandroid;
 
-import android.app.Activity;
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.preference.PreferenceManager;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBar;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBarActivity;
-import android.view.LayoutInflater;
+import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ListView;
-import android.widget.Toast;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesUtil;
 
-import de.nkp_media.vertretungsplanappandroid.Sync.Sync;
-import de.nkp_media.vertretungsplanappandroid.caching.CacheManager;
-import de.nkp_media.vertretungsplanappandroid.data.FeedDataProvider;
+import de.nkp_media.vertretungsplanappandroid.data.FeedDataManager;
+import de.nkp_media.vertretungsplanappandroid.fab.FAB;
+import de.nkp_media.vertretungsplanappandroid.gcm.RegistrationIntentService;
+import de.nkp_media.vertretungsplanappandroid.navbar.NavigationDrawer;
+import de.nkp_media.vertretungsplanappandroid.news.NewsListManager;
+import de.nkp_media.vertretungsplanappandroid.plan.PlanListManager;
+import de.nkp_media.vertretungsplanappandroid.plan.plan_tab;
+import de.nkp_media.vertretungsplanappandroid.settings.SettingsActivity;
+import de.nkp_media.vertretungsplanappandroid.setup.Setup;
 
-public class MainActivity extends ActionBarActivity implements NavigationDrawerFragment.NavigationDrawerCallbacks {
-
-
-    private NavigationDrawerFragment mNavigationDrawerFragment;
-
-    private CharSequence mTitle;
-    private Handler uiHandler;
-    private String currentDate ="heute";
-    private ArrayList<Ausfall2> ausfallList = new ArrayList<Ausfall2>();
-    private AusfallListAdapter listViewAdapter = null;
-    public CacheManager cacheManager;
-    public ProgressDialog ringProgressDialog;
-    private FeedDataProvider dataProvider;
+public class MainActivity extends ActionBarActivity {
 
 
-    public MainActivity() {
-        this.uiHandler = new UIHandler();
-
-    }
+    private static final String TAG = "MainActivity";
+    private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
+    private NavigationDrawer navigationDrawer;
+    private Toolbar toolbar;                              // Declaring the Toolbar Object
+    private FAB fab;
+    private SharedPreferences.OnSharedPreferenceChangeListener listener;
+    CharSequence Titles[]={"Plan","Nachrichten"};
+    int Numboftabs =2;
+    public ViewPagerAdapter adapter;
+    private ViewPager pager;
+    private SlidingTabLayout tabs;
+    public PlanListManager planListManager;
+    public FeedDataManager feedDataManager;
+    public NewsListManager newsListManager;
+    public plan_tab plan_tab;
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Log.d(TAG, "Creat");
 
-        mNavigationDrawerFragment = (NavigationDrawerFragment) getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
-        mTitle = getTitle();
-        mNavigationDrawerFragment.setHandler(this.uiHandler);
-        mNavigationDrawerFragment.setMainActivity(this);
-        // Set up the drawer.
-        mNavigationDrawerFragment.setUp(R.id.navigation_drawer, (DrawerLayout) findViewById(R.id.drawer_layout));
+    /* Assinging the toolbar object ot the view
+    and setting the the Action bar to our toolbar
+     */
+        toolbar = (Toolbar) findViewById(R.id.tool_bar);
+        setSupportActionBar(toolbar);
 
-        this.checkStartSetup();
+        this.planListManager = new PlanListManager(this);
+        this.newsListManager = new NewsListManager(this);
+        this.feedDataManager = new FeedDataManager(this,this.planListManager,this.newsListManager);
+        this.planListManager.refreshArrayList();
+        this.newsListManager.refreshArrayList();
 
-        Intent intent = new Intent(this, Sync.class);
-        startService(intent);
+        adapter =  new ViewPagerAdapter(getSupportFragmentManager(),Titles,Numboftabs,this,this.planListManager.getActualPlanViewList(),this.newsListManager.getActualNewsViewList());
+        this.plan_tab = adapter.plan_tab;
+        // Assigning ViewPager View and setting the adapter
+        pager = (ViewPager) findViewById(R.id.pager);
+        pager.setAdapter(adapter);
+        // Assiging the Sliding Tab Layout View
+        tabs = (SlidingTabLayout) findViewById(R.id.tabs);
+        tabs.setDistributeEvenly(true); // To make the Tabs Fixed set this true, This makes the tabs Space Evenly in Available width
 
-        this.dataProvider = new FeedDataProvider(this);
-
-        this.cacheManager = new CacheManager(this);
-    }
-
-
-
-    public void updateListView() {
-//        System.out.println("UpdateListView");
-        ListView listView = (ListView) findViewById(R.id.listView);
-        if(listView == null){
-            System.out.println("ListView is null");
-            return;
-        }
-        if(this.ausfallList == null)
-        {
-            System.out.println("AusfallList is null");
-            return;
-        }
-        ArrayList<String> valueList = new ArrayList<String>();
-        ArrayList<Ausfall2> valueList2 = new ArrayList<Ausfall2>();
-
-        String anzeigeDatum = "";
-        if(this.currentDate.equals("heute"))
-        {
-            anzeigeDatum = this.getTodayPlusDay(0);
-        }
-        else if(this.currentDate.equals("morgen"))
-        {
-            anzeigeDatum = this.getTodayPlusDay(1);
-        }
-        else if(this.currentDate.equals("uebermorgen"))
-        {
-            anzeigeDatum = this.getTodayPlusDay(2);
-        }
-
-
-        for(Ausfall2 ausfall : this.ausfallList) {
-            System.out.println("Item");
-            if(ausfall.getZieldatumString().equals(anzeigeDatum)) {
-                if (ausfall.isEntfall())
-                {
-                    valueList.add(String.valueOf(ausfall.getStunde()) + "A " + ausfall.getFach() + " (" + ausfall.getLehrer().replaceAll("chrom","") + ")");
-                    valueList2.add(ausfall);
-                }
-                else
-                {
-                    valueList.add(String.valueOf(ausfall.getStunde()) + "V " + ausfall.getFach() + " (" + ausfall.getLehrer().replaceAll("chrom","") + ") \n-> "+ausfall.getZielfach()+" ("+ausfall.getVertretung().replaceAll("chrom","")+")");
-                    valueList2.add(ausfall);
-                }
+        // Setting Custom Color for the Scroll bar indicator of the Tab View
+        tabs.setCustomTabColorizer(new SlidingTabLayout.TabColorizer() {
+            @Override
+            public int getIndicatorColor(int position) {
+                return getResources().getColor(R.color.tabsScrollColor);
             }
-//            if (ausfall.isEntfall()) {
-//                valueList.add(String.valueOf(ausfall.getStunde()) + "A " + ausfall.getFach() + " (" + ausfall.getLehrer().replaceAll("chrom", "") + ")");
-//                valueList2.add(ausfall);
-//            } else {
-//                valueList.add(String.valueOf(ausfall.getStunde()) + "V " + ausfall.getFach() + " (" + ausfall.getLehrer().replaceAll("chrom", "") + ") \n-> " + ausfall.getZielfach() + " (" + ausfall.getVertretung().replaceAll("chrom", "") + ")");
-//                valueList2.add(ausfall);
-//            }
-        }
-        listViewAdapter = new AusfallListAdapter(getApplicationContext(),R.layout.customrowlayout,valueList2);
-        listView.setAdapter(listViewAdapter);
-    }
+        });
 
-    public String getTodayPlusDay(int days)
-    {
-        Date heute = new Date();
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        Calendar c = Calendar.getInstance();
-        c.setTime(heute);
-        c.add(Calendar.DATE, days);  // number of days to add
-        return sdf.format(c.getTime());
-    }
+        // Setting the ViewPager For the SlidingTabsLayout
+        tabs.setViewPager(pager);
+        
+        this.navigationDrawer = new NavigationDrawer(this,this.toolbar);
+
+//        this.fab = new FAB(this);
 
 
-    private void checkStartSetup() {
-        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
-        boolean startSetup = settings.getBoolean("startSetup", false);
-        String password = settings.getString("password","");
-        System.out.println(password);
-        if(!startSetup || !password.equals("wichern"))
+
+        if (checkPlayServices())
         {
-            Intent nextScreen = new Intent(getApplicationContext(), Setup.class);
-            startActivity(nextScreen);
+            Log.d(TAG, "Start Registrationservice");
+            // Start IntentService to register this application with GCM.
+            Intent registrationServiceIntent = new Intent(this, RegistrationIntentService.class);
+            startService(registrationServiceIntent);
         }
 
     }
+
 
     @Override
-    public void onNavigationDrawerItemSelected(int position) {
-        // update the main content by replacing fragments
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        fragmentManager.beginTransaction()
-                .replace(R.id.container, PlaceholderFragment.newInstance(position + 1, this))
-                .commit();
+    public void onResume()
+    {
+        super.onResume();
+        this.checkPassword();
+        this.checkShowStartInfo();
     }
 
-    public void onSectionAttached(int number) {
-        switch (number) {
-            case 1:
-                mTitle = getString(R.string.title_section1);
-                Toast.makeText(this, "Heute", Toast.LENGTH_SHORT).show();
-                this.currentDate = "heute";
-                break;
-            case 2:
-                mTitle = getString(R.string.title_section2);
-                Toast.makeText(this, "Morgen", Toast.LENGTH_SHORT).show();
-                this.currentDate = "morgen";
-                break;
-            case 3:
-                mTitle = getString(R.string.title_section3);
-                Toast.makeText(this, "Übermorgen", Toast.LENGTH_SHORT).show();
-                this.currentDate = "uebermorgen";
-                break;
-        }
-        try {
-            this.ausfallList = this.cacheManager.getAusfallList(mNavigationDrawerFragment);
-        }
-        catch(Exception e)
+    private void checkShowStartInfo() {
+
+    }
+
+
+    private void checkPassword() {
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+        String password = settings.getString("password","");
+        Boolean start = settings.getBoolean("startSetup", false);
+        if(!password.equals("wichern")|| !start)
         {
-            System.out.println();
-            e.printStackTrace();
+            Intent setupScreen = new Intent(getApplicationContext(), Setup.class);
+            startActivity(setupScreen);
         }
-    }
-
-    public void restoreActionBar() {
-        ActionBar actionBar = getSupportActionBar();
-        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
-        actionBar.setDisplayShowTitleEnabled(true);
-        actionBar.setTitle(mTitle);
     }
 
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        if (!mNavigationDrawerFragment.isDrawerOpen()) {
-            // Only show items in the action bar relevant to this screen
-            // if the drawer is not showing. Otherwise, let the drawer
-            // decide what to show in the action bar.
-            getMenuInflater().inflate(R.menu.main, menu);
-            restoreActionBar();
-            return true;
-        }
-        return super.onCreateOptionsMenu(menu);
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        this.getSupportActionBar().setTitle("Heute");
+        return true;
     }
 
     @Override
@@ -221,88 +142,74 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
-            Intent nextScreen = new Intent(getApplicationContext(), SettingsActivity.class);
-            startActivity(nextScreen);
+            Intent settingsScreen = new Intent(getApplicationContext(), SettingsActivity.class);
+            startActivity(settingsScreen);
             return true;
+        }
+        else if(id == R.id.action_mail)
+        {
+            Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts(
+                    "mailto", "vertretungsplan@nkp-media.de", null));
+            emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Vertretungsplan");
+            emailIntent.putExtra(Intent.EXTRA_TEXT, "");
+            startActivity(Intent.createChooser(emailIntent, "Send email..."));
         }
 
         return super.onOptionsItemSelected(item);
     }
 
     /**
-     * A placeholder fragment containing a simple view.
+     * Check the device to make sure it has the Google Play Services APK. If
+     * it doesn't, display a dialog that allows users to download the APK from
+     * the Google Play Store or enable it in the device's system settings.
      */
-    public static class PlaceholderFragment extends Fragment {
-        /**
-         * The fragment argument representing the section number for this
-         * fragment.
-         */
-        private static final String ARG_SECTION_NUMBER = "section_number";
-        private  MainActivity mainActivity = null;
-
-        /**
-         * Returns a new instance of this fragment for the given section
-         * number.
-         */
-        public static PlaceholderFragment newInstance(int sectionNumber, MainActivity mainActivity) {
-            PlaceholderFragment fragment = new PlaceholderFragment(mainActivity);
-            Bundle args = new Bundle();
-            args.putInt(ARG_SECTION_NUMBER, sectionNumber);
-            fragment.setArguments(args);
-            return fragment;
+    private boolean checkPlayServices() {
+        int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
+        if (resultCode != ConnectionResult.SUCCESS) {
+            if (GooglePlayServicesUtil.isUserRecoverableError(resultCode)) {
+                GooglePlayServicesUtil.getErrorDialog(resultCode, this,
+                        PLAY_SERVICES_RESOLUTION_REQUEST).show();
+            } else {
+                Log.i(TAG, "This device is not supported.");
+                finish();
+            }
+            return false;
         }
-
-        public PlaceholderFragment(MainActivity mainActivity) {
-            this.mainActivity = mainActivity;
-        }
-        public PlaceholderFragment(){
-        }
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                                 Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-            return rootView;
-        }
-
-        @Override
-        public void onStart()
-        {
-            super.onStart();
-            this.mainActivity.updateListView();
-        }
-
-        @Override
-        public void onAttach(Activity activity) {
-            super.onAttach(activity);
-            ((MainActivity) activity).onSectionAttached(
-                    getArguments().getInt(ARG_SECTION_NUMBER));
-        }
+        return true;
     }
 
-    class UIHandler extends Handler {
-        @Override
-        public void handleMessage(Message msg) {
-            System.out.println("Message");
-            ausfallList = (ArrayList<Ausfall2>) msg.obj;
-
-            if(cacheManager == null)
-            {
-                System.out.println("Null CacheManager");
-            }
-
-            if(ausfallList == null)
-            {
-                System.out.println("Null List");
-            }
-            else {
-                cacheManager.updateCach(ausfallList);
-                dataProvider.updateDatabase(ausfallList);
-                updateListView();
-            }
-            ringProgressDialog.dismiss();
-            super.handleMessage(msg);
-        }
-
+/*    @Override
+    public int describeContents() {
+        return 0;
     }
 
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeValue(navigationDrawer);
+        dest.writeValue(toolbar);
+        dest.writeValue(fab);
+        dest.writeValue(Titles);
+        dest.writeValue(Numboftabs);
+        dest.writeValue(adapter);
+        dest.writeValue(pager);
+        dest.writeValue(tabs);
+        dest.writeValue(planListManager);
+        dest.writeValue(newsListManager);
+        dest.writeValue(feedDataManager);
+    }
+
+    MainActivity(Parcel in) {
+        in.readValue(navigationDrawer);
+        in.rea
+        in.writeValue(toolbar);
+        in.writeValue(fab);
+        in.writeValue(Titles);
+        in.writeValue(Numboftabs);
+        in.writeValue(adapter);
+        in.writeValue(pager);
+        in.writeValue(tabs);
+        in.writeValue(planListManager);
+        in.writeValue(newsListManager);
+        in.writeValue(feedDataManager);
+    }*/
 }

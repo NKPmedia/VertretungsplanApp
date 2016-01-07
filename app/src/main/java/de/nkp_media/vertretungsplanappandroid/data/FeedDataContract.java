@@ -42,4 +42,27 @@ public class FeedDataContract {
         static final String SQL_DELETE_ENTRIES =
                 "DROP TABLE IF EXISTS " + VertretungsEntry.TABLE_NAME;
     }
+
+    public static abstract class NewsEntry implements BaseColumns {
+        public static final String TABLE_NAME = "news";
+        public static final String COLUMN_NAME_ENTRY_ID = "entryid";
+        public static final String COLUMN_NAME_TITLE = "title";
+        public static final String COLUMN_NAME_CONTENT = "content";
+        public static final String COLUMN_NAME_DATUM = "datum";
+
+
+        static final String TEXT_TYPE = " TEXT";
+        static final String COMMA_SEP = ",";
+        static final String SQL_CREATE_ENTRIES =
+                "CREATE TABLE " + NewsEntry.TABLE_NAME + " (" +
+                        NewsEntry._ID + " INTEGER PRIMARY KEY," +
+                        NewsEntry.COLUMN_NAME_ENTRY_ID + TEXT_TYPE + COMMA_SEP +
+                        NewsEntry.COLUMN_NAME_TITLE + TEXT_TYPE + COMMA_SEP +
+                        NewsEntry.COLUMN_NAME_CONTENT + TEXT_TYPE + COMMA_SEP +
+                        NewsEntry.COLUMN_NAME_DATUM + TEXT_TYPE +
+                        " )";
+
+        static final String SQL_DELETE_ENTRIES =
+                "DROP TABLE IF EXISTS " + NewsEntry.TABLE_NAME;
+    }
 }

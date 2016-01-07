@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<android.support.v4.widget.DrawerLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:elevation="7dp"
+    android:id="@+id/DrawerLayout"
+
+
+    tools:context=".MainActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:weightSum="1">
+
+
+        <include
+            android:id="@+id/tool_bar"
+            layout="@layout/normal_tool_bar">
+        </include>
+
+        <fragment
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:name="de.nkp_media.vertretungsplanappandroid.settings.SettingsActivityFragment"
+            android:id="@+id/fragment" />
+
+
+    </LinearLayout>
+
+</android.support.v4.widget.DrawerLayout>

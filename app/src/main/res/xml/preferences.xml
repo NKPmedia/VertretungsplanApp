@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory
+        android:title="@string/pref_general"
+        android:key="pref_key_storage_settings">
+
+        <CheckBoxPreference
+            android:key="startSetup"
+            android:title="Setup"
+            android:summary="Wurde das setup schon durchlaufen"
+            android:defaultValue="false" />
+
+        <EditTextPreference
+            android:key="klasse"
+            android:title="@string/pref_title_display_name"
+            android:defaultValue="@string/pref_default_display_name"
+            android:selectAllOnFocus="true"
+            android:inputType="textCapWords"
+            android:capitalize="words"
+            android:singleLine="true"
+            android:maxLines="1" />
+
+        <CheckBoxPreference
+            android:key="profil_aktiv"
+            android:title="@string/pref_title_profil_aktiv"
+            android:defaultValue="false" />
+
+        <EditTextPreference
+            android:key="profil"
+            android:dependency="profil_aktiv"
+            android:title="@string/pref_title_profil"
+            android:selectAllOnFocus="true"
+            android:inputType="textCapWords"
+            android:capitalize="words"
+            android:singleLine="true"
+            android:maxLines="1" />
+
+        <EditTextPreference
+            android:key="password"
+            android:title="@string/pref_title_passwort"
+            android:defaultValue="@string/pref_default_passwort"
+            android:selectAllOnFocus="true"
+            android:inputType="textCapWords"
+            android:capitalize="words"
+            android:singleLine="true"
+            android:maxLines="1" />
+
+        <CheckBoxPreference
+            android:key="donateButton"
+            android:title="@string/pref_donate"
+            android:summary="Beötigt einen Neustart"
+            android:defaultValue="true" />
+
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:title="@string/server"
+        android:key="pref_key_storage_settings">
+
+        <EditTextPreference
+            android:key="server_domain"
+            android:title="@string/pref_server_domain"
+            android:defaultValue="@string/pref_default_server_domain"
+            android:selectAllOnFocus="false"
+            android:inputType="textCapWords"
+            android:capitalize="words"
+            android:singleLine="true"
+            android:maxLines="1" />
+
+        <!-- NOTE: This preference will be enabled only when the checkbox above is checked. -->
+        <EditTextPreference
+            android:key="server_path"
+            android:title="@string/pref_title_server_path"
+            android:defaultValue="@string/pref_default_server_path"
+            android:selectAllOnFocus="false"
+            android:inputType="textCapWords"
+            android:capitalize="words"
+            android:singleLine="true"
+            android:maxLines="1" />
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:title="@string/notifications"
+        android:key="pref_key_storage_settings">
+
+        <CheckBoxPreference
+            android:key="notifications_new_message"
+            android:title="@string/pref_title_new_message_notifications"
+            android:defaultValue="true" />
+
+        <!-- NOTE: This preference will be enabled only when the checkbox above is checked. -->
+        <CheckBoxPreference
+            android:dependency="notifications_new_message"
+            android:key="notifications_new_message_vibrate"
+            android:title="@string/pref_title_vibrate"
+            android:defaultValue="true" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="@string/sync"
+        android:key="pref_key_storage_settings">
+
+        <ListPreference
+            android:key="sync_frequency"
+            android:title="@string/pref_title_sync_frequency"
+            android:entries="@array/pref_sync_frequency_titles"
+            android:entryValues="@array/pref_sync_frequency_values"
+            android:defaultValue="180"
+            android:negativeButtonText="@null"
+            android:positiveButtonText="@null" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="@string/debug"
+        android:key="pref_key_storage_debug">
+
+        <CheckBoxPreference
+            android:key="debug_site"
+            android:title="@string/pref_debug_site"
+            android:defaultValue="false" />
+
+        <CheckBoxPreference
+            android:key="debug_list"
+            android:title="@string/pref_debug_list"
+            android:defaultValue="false" />
+
+        <CheckBoxPreference
+            android:key="serverToken"
+            android:title="@string/pref_debug_servertoken"
+            android:defaultValue="false" />
+
+
+    </PreferenceCategory>
+
+</PreferenceScreen>
