@@ -1,7 +1,9 @@
 package de.nkp_media.vertretungsplanappandroid.gcm;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.IBinder;
+import android.preference.PreferenceManager;
 
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.google.android.gms.iid.InstanceID;
@@ -23,10 +25,11 @@ public class InstanceIDListenerService extends com.google.android.gms.iid.Instan
     @Override
     public void onTokenRefresh() {
         InstanceID instanceID = InstanceID.getInstance(this);
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         String token = "";
         try {
             token = instanceID.getToken(this.getString(R.string.gcm_defaultSenderId), GoogleCloudMessaging.INSTANCE_ID_SCOPE, null);
-            new RegistrationIntentService().sendRegistrationToServer(token);
+            GCMServerConnection.sendRegistrationToServer(token, sharedPreferences.getString("randomDeviceId", ""));
             //TODO Check if correct
         } catch (IOException e) {
             e.printStackTrace();

@@ -10,12 +10,8 @@ import com.google.android.gms.gcm.GcmPubSub;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.google.android.gms.iid.InstanceID;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import java.util.Random;
 
 import de.nkp_media.vertretungsplanappandroid.R;
 
@@ -37,37 +33,62 @@ public class RegistrationIntentService extends IntentService {
             // In the (unlikely) event that multiple refresh operations occur simultaneously,
             // ensure that they are processed sequentially.
             synchronized (TAG) {
-                Log.d(TAG,"Try to get the token");
-                // [START register_for_gcm]
-                // Initially this call goes out to the network to retrieve the token, subsequent calls
-                // are local.
-                // [START get_token]
+
+                checkIfRandomDeviceIDExits();
+
+                //get the gcmId from google
+                Log.d(TAG, "Try to get the gcmId");
                 InstanceID instanceID = InstanceID.getInstance(this);
-                String token = instanceID.getToken(getString(R.string.GCMdefaultSenderId), GoogleCloudMessaging.INSTANCE_ID_SCOPE, null);
-                // [END get_token]
-                Log.i(TAG, "GCM Registration Token: " + token);
+                String gcmId = instanceID.getToken(getString(R.string.GCMdefaultSenderId), GoogleCloudMessaging.INSTANCE_ID_SCOPE, null);
+                Log.i(TAG, "GCM Registration Token: " + gcmId);
 
-                String status = "0";
-                if(!sharedPreferences.getBoolean("serverToken",false)) {
-                    status = sendRegistrationToServer(token);
+                String serverInSync = checkIfDeviceIdAndGcmIdOnServer(gcmId);
+                Log.d(TAG,"Respons of sny check: "+serverInSync);
 
-
+                if(serverInSync.equals("1"))
+                {
+                    Log.e(TAG, "Error while sync gcm. Retry at next start.");
+                    sharedPreferences.edit().putBoolean("serverToken", false).apply();
+                }else if(serverInSync.equals("0_found")){
+                    sharedPreferences.edit().putBoolean("serverToken", true).apply();
+                    sharedPreferences.edit().putString("gcmId",gcmId).commit();
+                    Log.d(TAG,"Token allready send and up to date");
+                }
+                else if(serverInSync.equals("0_d_id_found")){
+                    String status = GCMServerConnection.updateRegistrationToServer(gcmId, sharedPreferences.getString("randomDeviceId", ""));
+                    if(status.equals("0"))
+                    {
+                        Log.d(TAG,"Updated reg id with existing device id");
+                    }else
+                    {
+                        Log.e(TAG,"Reg id update failed");
+                    }
+                }
+                else if(serverInSync.equals("0_reg_id_found")){
+                    String status = GCMServerConnection.updateDeviceIdToServer(gcmId, sharedPreferences.getString("randomDeviceId", ""));
+                    if(status.equals("0"))
+                    {
+                        Log.d(TAG,"Updated device id with existing reg id");
+                    }else
+                    {
+                        Log.e(TAG,"Device id update failed");
+                    }
+                }
+                else if(!sharedPreferences.getBoolean("serverToken",false) || serverInSync.equals("404_no_ids")) {
+                    String status = GCMServerConnection.sendRegistrationToServer(gcmId,sharedPreferences.getString("randomDeviceId",""));
                     // Subscribe to topic channels
-                    subscribeTopics(token);
-
-                    // You should store a boolean that indicates whether the generated token has been
-                    // sent to your server. If the boolean is false, send the token to your server,
-                    // otherwise your server should have already received the token.
+                    subscribeTopics(gcmId);
+                    // stores servertoken and an value thats indicates that the gcmId is on the server
                     if (status.equals("0")) {
                         sharedPreferences.edit().putBoolean("serverToken", true).apply();
+                        sharedPreferences.edit().putString("gcmId",gcmId).commit();
                     } else {
                         sharedPreferences.edit().putBoolean("serverToken", false).apply();
                     }
-                    // [END register_for_gcm]
                 }
             }
         } catch (Exception e) {
-            Log.d(TAG, "Failed to complete token refresh", e);
+            Log.e(TAG, "Failed to complete token refresh");
             // If an exception happens while fetching the new token or updating our registration data
             // on a third-party server, this ensures that we'll attempt the update at a later time.
             sharedPreferences.edit().putBoolean("serverToken", false).apply();
@@ -77,47 +98,42 @@ public class RegistrationIntentService extends IntentService {
 //        LocalBroadcastManager.getInstance(this).sendBroadcast(registrationComplete);
     }
 
-    /**
-     * Persist registration to third-party servers.
-     *
-     * Modify this method to associate the user's GCM registration token with any server-side account
-     * maintained by your application.
-     *
-     * @param token The new token.
-     */
-    public String sendRegistrationToServer(String token) {
-        try {
-            Log.d(TAG,"Sendig token to server");
-            URL url = new URL("http://winet-ag.ddns.net/blackboard/rss/reg_gcm_id.php?gcmid="+token );
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setReadTimeout(10000 /* milliseconds */);
-            conn.setConnectTimeout(15000 /* milliseconds */);
-            conn.setRequestMethod("GET");
-            conn.setDoInput(true);
-            // Starts the query
-            InputStream stream = conn.getInputStream();
-            InputStreamReader isReader = new InputStreamReader(stream);
-            BufferedReader br = new BufferedReader(isReader );
-            String response = br.readLine();
-            Log.d(TAG,"Respons "+response);
-            return response;
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return "1";
+    private String checkIfDeviceIdAndGcmIdOnServer(String gcmId) {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        String deviceId = sharedPreferences.getString("randomDeviceId", "");
+
+        String status = GCMServerConnection.checkIdsOnServer(deviceId,gcmId);
+
+        return status;
     }
+
+    private void checkIfRandomDeviceIDExits() {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        if(sharedPreferences.getString("randomDeviceId","").equals(""))
+        {
+            Random r = new Random();
+            long random = r.nextLong();
+            sharedPreferences.edit().putString("randomDeviceId", String.valueOf(random)).commit();
+            Log.d(TAG,"Created a randomDeviceId: "+random);
+        }
+        else
+        {
+            Log.d(TAG,"Found randomDeviceID: "+sharedPreferences.getString("randomDeviceId",""));
+        }
+    }
+
 
     /**
      * Subscribe to any GCM topics of interest, as defined by the TOPICS constant.
      *
-     * @param token GCM token
+     * @param gcmId GCM gcmId
      * @throws IOException if unable to reach the GCM PubSub service
      */
     // [START subscribe_topics]
-    private void subscribeTopics(String token) throws IOException {
+    private void subscribeTopics(String gcmId) throws IOException {
         for (String topic : TOPICS) {
             GcmPubSub pubSub = GcmPubSub.getInstance(this);
-            pubSub.subscribe(token, "/topics/" + topic, null);
+            pubSub.subscribe(gcmId, "/topics/" + topic, null);
         }
     }
     // [END subscribe_topics]

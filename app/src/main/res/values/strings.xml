@@ -18,7 +18,7 @@
     <string name="sync">Sync</string>
     <string name="pref_title_sync_frequency">Sync-zeit</string>
     <string name="GCMdefaultSenderId">669309765800</string>
-    <string name="pref_debug_site">Debug-Feed nutzen</string>
+    <string name="pref_debug_site">Debug-Feed nutzen (S2, S4, 5G1-3, 6G2-3)</string>
     <string name="debug">Debug</string>
     <string name="pref_debug_list">Tage ignorieren</string>
 
@@ -54,11 +54,14 @@
 
 
     <string name="ok">OK</string>
+    <string name="hello_blank_fragment"></string>
     <string name="dialog_hello_fragment">Alle Angaben ohne Gewähr!\nBei Fragen oder Anmerkungen:\nvertretungsplan@nkp-media.de\nWenn die Daten nicht stimmen, liegt es meistens nicht an der App. Bitte informiere mich dann über die oben gennante Mailadresse</string>
     <string name="server">Servereinstellungen</string>
     <string name="pref_server_domain">Serverdomain</string>
     <string name="pref_default_server_domain">winet-ag.ddns.net</string>
     <string name="pref_title_server_path">Server Path</string>
     <string name="pref_default_server_path">/blackboard/rss/</string>
+    <string name="pref_title_randomDeviceId">Random Device Id</string>
+    <string name="pref_title_gcmDeviceId">GCM ID</string>
 
 </resources>
