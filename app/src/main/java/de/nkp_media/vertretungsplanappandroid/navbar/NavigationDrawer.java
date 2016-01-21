@@ -47,7 +47,7 @@ public class NavigationDrawer {
     int PROFILE = R.drawable.ic_action;
 
     RecyclerView mRecyclerView;                           // Declaring RecyclerView
-    RecyclerView.Adapter mAdapter;                        // Declaring Adapter For Recycler View
+    MyNavigationDrawerAdapter mAdapter;                        // Declaring Adapter For Recycler View
     RecyclerView.LayoutManager mLayoutManager;            // Declaring Layout Manager as a linear layout manager
     DrawerLayout Drawer;                                  // Declaring DrawerLayout
 
@@ -121,7 +121,7 @@ public class NavigationDrawer {
                         Log.d(TAG, "Changed: " + key);
                         if(key.equals("klasse"))
                         {
-                            mAdapter.notifyDataSetChanged();
+                            mAdapter.notifyDisplayClassChanged();
                         }
                     }
                 };

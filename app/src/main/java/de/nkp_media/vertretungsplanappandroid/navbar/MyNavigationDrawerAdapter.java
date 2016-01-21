@@ -32,6 +32,7 @@ public class MyNavigationDrawerAdapter extends RecyclerView.Adapter<MyNavigation
     private String name;        //String Resource for header View Name
     private int profile;        //int Resource for header view profile picture
     private String email;       //String Resource for header view email
+    private ViewHolder vhHeader;
 
 
     // Creating a ViewHolder which extends the RecyclerView View Holder
@@ -111,8 +112,9 @@ public class MyNavigationDrawerAdapter extends RecyclerView.Adapter<MyNavigation
 
             View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.header,parent,false); //Inflating the layout
 
-            ViewHolder vhHeader = new ViewHolder(v,viewType); //Creating ViewHolder and passing the object of type view
-
+            vhHeader = new ViewHolder(v,viewType); //Creating ViewHolder and passing the object of type view
+            
+            
             return vhHeader; //returning the object created
 
 
@@ -138,6 +140,11 @@ public class MyNavigationDrawerAdapter extends RecyclerView.Adapter<MyNavigation
             holder.email.setText(email);
             holder.Klasse.setText(PreferenceManager.getDefaultSharedPreferences(this.mainActivity).getString("klasse","Keine Auswahl"));
         }
+    }
+
+    public void notifyDisplayClassChanged(){
+        this.vhHeader.Klasse.setText(PreferenceManager.getDefaultSharedPreferences(this.mainActivity).getString("klasse","Keine Auswahl"));
+
     }
 
     // This method returns the number of items present in the list
