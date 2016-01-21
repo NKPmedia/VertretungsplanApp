@@ -100,6 +100,7 @@ public class news_tab extends Fragment implements Serializable, SwipeRefreshLayo
     @Override
     public void onRefresh() {
         EventBus.getDefault().post(new RefreshEvent(this.mSwipeRefreshLayout));
+        Log.d(TAG, "Pulled Swipe-Refresh");
 
     }
 }

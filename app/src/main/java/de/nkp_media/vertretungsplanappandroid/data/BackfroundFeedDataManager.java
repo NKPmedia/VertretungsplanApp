@@ -16,11 +16,11 @@ import java.io.InputStream;
 import java.util.ArrayList;
 
 import de.nkp_media.vertretungsplanappandroid.Ausfall2;
+import de.nkp_media.vertretungsplanappandroid.MainActivity;
 import de.nkp_media.vertretungsplanappandroid.News;
 import de.nkp_media.vertretungsplanappandroid.R;
 import de.nkp_media.vertretungsplanappandroid.Sync.FeedUpdate;
 import de.nkp_media.vertretungsplanappandroid.Sync.RSSFeedParser;
-import de.nkp_media.vertretungsplanappandroid.gcm.MyGcmListenerService;
 
 /**
  * Created by paul on 24.08.15.
@@ -91,12 +91,13 @@ public class BackfroundFeedDataManager implements FeedDataManagerInterface{
     private void ladeData(boolean debugSite, String klasse) {
         RSSFeedParser XmlParser = new RSSFeedParser();
         InputStream stream = null;
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this.service);
         try {
             Log.d(TAG, "Start FeedUpdater");
             if (debugSite) {
-                stream = FeedUpdate.downloadUrl("http://winet-ag.ddns.net/blackboard/rss/get_android_rss_debug.php?klasse=" + klasse);
+                stream = FeedUpdate.downloadUrl("http://"+pref.getString("server_domain", "winet-ag.ddns.net")+pref.getString("server_path", "/blackboard/rss/")+"get_android_rss_debug.php?klasse=" + klasse);
             } else {
-                stream = FeedUpdate.downloadUrl("http://winet-ag.ddns.net/blackboard/rss/get_android_rss.php?klasse=" + klasse);
+                stream = FeedUpdate.downloadUrl("http://"+pref.getString("server_domain", "winet-ag.ddns.net")+pref.getString("server_path", "/blackboard/rss/")+"get_android_rss.php?klasse=" + klasse);
             }
 
             Log.d(TAG, "Parsing serverdata");
@@ -120,7 +121,7 @@ public class BackfroundFeedDataManager implements FeedDataManagerInterface{
                         .setContentText(message);
         int NOTIFICATION_ID = 12345;
 
-        Intent targetIntent = new Intent(this.service, MyGcmListenerService.class);
+        Intent targetIntent = new Intent(this.service, MainActivity.class);
         PendingIntent contentIntent = PendingIntent.getActivity(this.service, 0, targetIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         builder.setContentIntent(contentIntent);
         NotificationManager nManager = (NotificationManager) this.service.getSystemService(this.service.NOTIFICATION_SERVICE);

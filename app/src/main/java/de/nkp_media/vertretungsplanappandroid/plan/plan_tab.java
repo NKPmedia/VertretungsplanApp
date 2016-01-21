@@ -102,6 +102,7 @@ public class plan_tab extends Fragment implements SwipeRefreshLayout.OnRefreshLi
     @Override
     public void onRefresh() {
         EventBus.getDefault().post(new RefreshEvent(this.mSwipeRefreshLayout));
+        Log.d(TAG,"Pulled Swipe-Refresh");
 
     }
 

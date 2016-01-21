@@ -49,7 +49,7 @@ public class MainActivity extends ActionBarActivity {
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Log.d(TAG, "Creat");
+        Log.d(TAG, "onCreat");
 
     /* Assinging the toolbar object ot the view
     and setting the the Action bar to our toolbar

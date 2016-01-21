@@ -1,8 +1,10 @@
 package de.nkp_media.vertretungsplanappandroid.Sync;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Message;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import java.io.IOException;
@@ -32,15 +34,16 @@ public class FeedUpdate extends Thread{
     public void run()
     {
         RSSFeedParser XmlParser = new RSSFeedParser();
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this.context);
         InputStream stream = null;
         try {
             Log.d(TAG,"Start FeedUpdater");
             if(this.debugSite) {
-                stream = downloadUrl("http://winet-ag.ddns.net/blackboard/rss/get_android_rss_debug.php?klasse=" + this.klasse);
+                stream = downloadUrl("http://"+pref.getString("server_domain", "winet-ag.ddns.net")+pref.getString("server_path", "/blackboard/rss/")+"get_android_rss_debug.php?klasse=" + this.klasse);
             }
             else
             {
-                stream = downloadUrl("http://winet-ag.ddns.net/blackboard/rss/get_android_rss.php?klasse="+this.klasse);
+                stream = downloadUrl("http://"+pref.getString("server_domain", "winet-ag.ddns.net")+pref.getString("server_path", "/blackboard/rss/")+"get_android_rss.php?klasse="+this.klasse);
             }
 
 
